@@ -1,0 +1,87 @@
+{
+  "common": {
+    "name": "ecoflow-powerocean",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Initial release: live data for EcoFlow PowerOcean via app MQTT",
+        "de": "Erste Version: Livedaten für EcoFlow PowerOcean über das App-MQTT"
+      }
+    },
+    "title": "EcoFlow PowerOcean",
+    "titleLang": {
+      "en": "EcoFlow PowerOcean",
+      "de": "EcoFlow PowerOcean"
+    },
+    "desc": {
+      "en": "Reads live data (PV, battery, grid, phases) from EcoFlow PowerOcean systems. Uses the EcoFlow app MQTT broker, because the official Developer API does not deliver live data for PowerOcean.",
+      "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) von EcoFlow-PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für PowerOcean keine Livedaten liefert."
+    },
+    "authors": ["Jens Franke <jensfr@gmail.com>"],
+    "keywords": ["ecoflow", "powerocean", "photovoltaic", "battery", "energy"],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "ecoflow-powerocean.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/jensfr1/ioBroker.ecoflow-powerocean/main/admin/ecoflow-powerocean.png",
+    "readme": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "energy",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=6.13.16"
+      }
+    ]
+  },
+  "native": {
+    "email": "",
+    "password": "",
+    "deviceSn": "",
+    "throttleSeconds": 10
+  },
+  "encryptedNative": ["password"],
+  "protectedNative": ["password"],
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": {
+          "en": "Information",
+          "de": "Informationen"
+        }
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": {
+          "en": "Connected to EcoFlow cloud",
+          "de": "Mit EcoFlow-Cloud verbunden"
+        },
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
+}

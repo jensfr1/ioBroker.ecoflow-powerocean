@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "This adapter uses EcoFlow's app (unofficial) API, because the official Developer API does not return live data for PowerOcean systems. EcoFlow may change it at any time.",
+  "label_email": "EcoFlow account e-mail",
+  "help_email": "The same login you use in the EcoFlow app",
+  "label_password": "Password",
+  "help_password": "Stored encrypted by ioBroker",
+  "label_deviceSn": "Serial number",
+  "help_deviceSn": "Serial number of the inverter, e.g. RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Update interval (seconds)",
+  "help_throttleSeconds": "The device pushes about every 2 s. States are written at most this often (1-60 s)."
+}

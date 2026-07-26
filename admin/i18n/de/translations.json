@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "Dieser Adapter nutzt die (inoffizielle) App-API von EcoFlow, weil die offizielle Developer-API für PowerOcean keine Livedaten liefert. EcoFlow kann das jederzeit ändern.",
+  "label_email": "E-Mail des EcoFlow-Kontos",
+  "help_email": "Derselbe Login wie in der EcoFlow-App",
+  "label_password": "Passwort",
+  "help_password": "Wird von ioBroker verschlüsselt gespeichert",
+  "label_deviceSn": "Seriennummer",
+  "help_deviceSn": "Seriennummer des Wechselrichters, z. B. RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Aktualisierungsintervall (Sekunden)",
+  "help_throttleSeconds": "Das Gerät sendet ca. alle 2 s. Datenpunkte werden höchstens so oft geschrieben (1-60 s)."
+}

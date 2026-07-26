@@ -1,0 +1,54 @@
+{
+  "name": "iobroker.ecoflow-powerocean",
+  "version": "0.1.0",
+  "description": "Reads live data from EcoFlow PowerOcean systems via the EcoFlow app MQTT broker",
+  "author": {
+    "name": "Jens Franke",
+    "email": "jensfr@gmail.com"
+  },
+  "homepage": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "ecoflow",
+    "powerocean",
+    "photovoltaic",
+    "battery",
+    "energy"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.2.3",
+    "mqtt": "^5.15.2"
+  },
+  "devDependencies": {
+    "@iobroker/testing": "^5.0.4",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "main": "build/main.js",
+  "files": [
+    "admin/",
+    "build/",
+    "io-package.json",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run",
+    "test:package": "mocha test/package.test.js --exit",
+    "prepublishOnly": "npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean/issues"
+  },
+  "readmeFilename": "README.md"
+}

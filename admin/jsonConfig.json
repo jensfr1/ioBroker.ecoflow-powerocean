@@ -1,0 +1,51 @@
+{
+  "i18n": true,
+  "type": "panel",
+  "items": {
+    "_hint": {
+      "type": "staticText",
+      "newLine": true,
+      "text": "hint_unofficial_api",
+      "style": {
+        "fontSize": "0.9rem",
+        "fontStyle": "italic"
+      },
+      "sm": 12
+    },
+    "email": {
+      "type": "text",
+      "label": "label_email",
+      "help": "help_email",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "password": {
+      "type": "password",
+      "label": "label_password",
+      "help": "help_password",
+      "repeat": false,
+      "visible": true,
+      "sm": 12,
+      "md": 6
+    },
+    "deviceSn": {
+      "type": "text",
+      "label": "label_deviceSn",
+      "help": "help_deviceSn",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "throttleSeconds": {
+      "type": "number",
+      "label": "label_throttleSeconds",
+      "help": "help_throttleSeconds",
+      "min": 1,
+      "max": 60,
+      "default": 10,
+      "sm": 12,
+      "md": 6
+    }
+  }
+}
