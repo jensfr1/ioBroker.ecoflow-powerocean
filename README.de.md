@@ -125,16 +125,6 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 - Erste Veröffentlichung: Livedaten über das EcoFlow-App-MQTT, Unterstützung für
   `cmdFunc 254` (Ocean 2) und `cmdFunc 96` (ältere Generation)
 
-## Unterstützung
-
-Ich baue das in meiner Freizeit und gebe es her. Wenn es dir etwas spart und du
-es erübrigen kannst, freue ich mich über einen kleinen Beitrag — erwartet wird
-nichts, und nichts ist davon abhängig.
-
-[**PayPal**](https://www.paypal.com/donate/?business=jensfr%40gmail.com&currency_code=EUR)
-
-Ein Stern auf GitHub kostet nichts und hilft genauso.
-
 ## Lizenz
 
 MIT — siehe [LICENSE](LICENSE).

@@ -120,16 +120,6 @@ npx tsx test/live-check.ts <email> <password> <serial>
 - Initial release: live data via EcoFlow app MQTT, support for `cmdFunc 254`
   (new PowerOcean generation) and `cmdFunc 96` (older generation)
 
-## Support
-
-I build this in my spare time and give it away. If it saves you something and you
-can spare it, a small contribution is welcome — nothing is expected, and no
-feature is gated behind it.
-
-[**PayPal**](https://www.paypal.com/donate/?business=jensfr%40gmail.com&currency_code=EUR)
-
-A GitHub star costs nothing and helps just as much.
-
 ## License
 
 MIT License — Copyright (c) 2026 Jens Franke
