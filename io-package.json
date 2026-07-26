@@ -8,17 +8,17 @@
         "de": "Erste Version: Livedaten für EcoFlow PowerOcean über das App-MQTT"
       }
     },
-    "title": "EcoFlow PowerOcean",
+    "title": "EcoFlow Ocean 2",
     "titleLang": {
-      "en": "EcoFlow PowerOcean",
-      "de": "EcoFlow PowerOcean"
+      "en": "EcoFlow Ocean 2",
+      "de": "EcoFlow Ocean 2"
     },
     "desc": {
-      "en": "Reads live data (PV, battery, grid, phases) from EcoFlow PowerOcean systems. Uses the EcoFlow app MQTT broker, because the official Developer API does not deliver live data for PowerOcean.",
-      "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) von EcoFlow-PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für PowerOcean keine Livedaten liefert."
+      "en": "Reads live data (PV, battery, grid, phases) from the EcoFlow Ocean 2 and other PowerOcean systems. Uses the EcoFlow app MQTT broker, because the official Developer API does not deliver live data for these devices.",
+      "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) vom EcoFlow Ocean 2 und anderen PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für diese Geräte keine Livedaten liefert."
     },
     "authors": ["Jens Franke <jensfr@gmail.com>"],
-    "keywords": ["ecoflow", "powerocean", "photovoltaic", "battery", "energy"],
+    "keywords": ["ecoflow", "ocean2", "ocean 2", "powerocean", "photovoltaic", "battery", "energy"],
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "main": "build/main.js",

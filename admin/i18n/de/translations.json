@@ -1,5 +1,5 @@
 {
-  "hint_unofficial_api": "Dieser Adapter nutzt die (inoffizielle) App-API von EcoFlow, weil die offizielle Developer-API für PowerOcean keine Livedaten liefert. EcoFlow kann das jederzeit ändern.",
+  "hint_unofficial_api": "Dieser Adapter nutzt die (inoffizielle) App-API von EcoFlow, weil die offizielle Developer-API für diese Geräte keine Livedaten liefert. EcoFlow kann das jederzeit ändern.",
   "label_email": "E-Mail des EcoFlow-Kontos",
   "help_email": "Derselbe Login wie in der EcoFlow-App",
   "label_password": "Passwort",

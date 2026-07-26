@@ -1,5 +1,5 @@
 {
-  "hint_unofficial_api": "This adapter uses EcoFlow's app (unofficial) API, because the official Developer API does not return live data for PowerOcean systems. EcoFlow may change it at any time.",
+  "hint_unofficial_api": "This adapter uses EcoFlow's app (unofficial) API, because the official Developer API does not return live data for these devices. EcoFlow may change it at any time.",
   "label_email": "EcoFlow account e-mail",
   "help_email": "The same login you use in the EcoFlow app",
   "label_password": "Password",

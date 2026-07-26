@@ -4,9 +4,11 @@
 
 [English](README.md) · **Deutsch**
 
-Liest Livedaten von **EcoFlow-PowerOcean-Anlagen** — insbesondere vom
-**EcoFlow Ocean 2** (Seriennummern beginnend mit `RE11`) — und schreibt PV,
-Batterie, Netz und Phasenwerte in den ioBroker-Objektbaum.
+Liest Livedaten vom **EcoFlow Ocean 2** (Seriennummern beginnend mit `RE11`)
+und anderen PowerOcean-Anlagen und schreibt PV, Batterie, Netz und Phasenwerte
+in den ioBroker-Objektbaum.
+
+Im ioBroker erscheint der Adapter als **EcoFlow Ocean 2**.
 
 ## Warum es diesen Adapter gibt
 

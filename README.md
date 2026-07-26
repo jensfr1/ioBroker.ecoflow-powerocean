@@ -4,9 +4,11 @@
 
 **English** · [Deutsch](README.de.md)
 
-Reads live data from **EcoFlow PowerOcean** systems — in particular the
-**EcoFlow Ocean 2** (serial numbers starting with `RE11`) — and writes PV,
-battery, grid and phase values into the ioBroker object tree.
+Reads live data from the **EcoFlow Ocean 2** (serial numbers starting with
+`RE11`) and other PowerOcean systems, and writes PV, battery, grid and phase
+values into the ioBroker object tree.
+
+The adapter appears in ioBroker as **EcoFlow Ocean 2**.
 
 ## Why this adapter exists
 
