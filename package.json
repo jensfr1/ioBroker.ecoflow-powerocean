@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean"
+    "url": "git+https://github.com/jensfr1/ioBroker.ecoflow-powerocean.git"
   },
   "engines": {
     "node": ">=22"
