@@ -3,7 +3,9 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "outDir": "./build",
     "rootDir": "./src",
     "strict": true,
@@ -13,7 +15,14 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
     "sourceMap": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "vitest.config.ts",
+    "eslint.config.mjs"
+  ]
 }
