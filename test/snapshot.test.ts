@@ -12,7 +12,9 @@ import type { DecodedMessage } from '../src/lib/protobuf';
 
 const SN = 'RE11XXXXXXXXXXXX';
 
-/** Baut eine leere DecodedMessage und ergaenzt gezielt Felder. */
+/**
+ * Baut eine leere DecodedMessage und ergaenzt gezielt Felder.
+ */
 const message = (partial: Partial<DecodedMessage> = {}): DecodedMessage => ({
   batteryPacks: [],
   po2BatteryPacks: [],
@@ -78,7 +80,11 @@ describe('mergeSnapshot — Delta-Kodierung der Phasen', () => {
       null,
       message({ po2Telemetry: telemetry({ phases: new Map([[1, { actPwr: 100 }]]) }) }),
     );
-    mergeSnapshot(SN, first, message({ po2Telemetry: telemetry({ phases: new Map([[1, { actPwr: 999 }]]) }) }));
+    mergeSnapshot(
+      SN,
+      first,
+      message({ po2Telemetry: telemetry({ phases: new Map([[1, { actPwr: 999 }]]) }) }),
+    );
     expect(first.phases.a!.activePower).toBe(100);
   });
 });
@@ -132,7 +138,11 @@ describe('mergeSnapshot — Werte aus mehreren Nachrichtentypen', () => {
       message({ po2Telemetry: telemetry({ socPercent: 98, gridPowerW: 0, pvPowerW: 1127 }) }),
     );
     // Folgenachricht enthaelt nur den Wechselrichter-Block
-    const withPcs = mergeSnapshot(SN, withSoc, message({ po2Telemetry: telemetry({ pcsTotalW: 1069 }) }));
+    const withPcs = mergeSnapshot(
+      SN,
+      withSoc,
+      message({ po2Telemetry: telemetry({ pcsTotalW: 1069 }) }),
+    );
     expect(withPcs.batterySoc).toBe(98);
     expect(withPcs.gridPowerW).toBe(0);
     expect(withPcs.inverterPowerW).toBe(1069);
@@ -140,7 +150,11 @@ describe('mergeSnapshot — Werte aus mehreren Nachrichtentypen', () => {
 
   it('ignoriert SoC 0 (kommt in Teilnachrichten als Platzhalter)', () => {
     const first = mergeSnapshot(SN, null, message({ po2Telemetry: telemetry({ socPercent: 87 }) }));
-    const second = mergeSnapshot(SN, first, message({ po2Telemetry: telemetry({ socPercent: 0 }) }));
+    const second = mergeSnapshot(
+      SN,
+      first,
+      message({ po2Telemetry: telemetry({ socPercent: 0 }) }),
+    );
     expect(second.batterySoc).toBe(87);
   });
 });
@@ -219,7 +233,8 @@ describe('computeHouseLoad', () => {
 describe('mergeSnapshot — mit echten aufgezeichneten Payloads', () => {
   const SUMMARY_HEX =
     '0ac2010a6a3a0f0d00808e441d00808e443500808e448a04440800100018002500e08c442d00807f4435004081c43d000000004000480055000000005d0000000060006802700278c04e80010a8801649001c04e980101a50100000000ba050f0d00c08f441d00c08f443500c08f441060182020012801380340fe014827506a580170ada24478fe01800104c2011052453131585858585858585858585858ca011052453131585858585858585858585858d2011052453131585858585858585858585858';
-  const hexToBytes = (hex: string) => new Uint8Array(hex.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+  const hexToBytes = (hex: string) =>
+    new Uint8Array(hex.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
 
   it('erzeugt einen plausiblen Snapshot', () => {
     const msg = decodeMqttPayload(hexToBytes(SUMMARY_HEX));

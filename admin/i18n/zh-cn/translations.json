@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "本适配器使用 EcoFlow 应用的（非官方）API，因为官方开发者 API 不会为这些设备返回实时数据。EcoFlow 可能随时更改它。",
+  "label_email": "EcoFlow 账户邮箱",
+  "help_email": "与 EcoFlow 应用中相同的登录账号",
+  "label_password": "密码",
+  "help_password": "由 ioBroker 加密保存",
+  "label_deviceSn": "序列号",
+  "help_deviceSn": "逆变器的序列号，例如 RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "更新间隔（秒）",
+  "help_throttleSeconds": "设备大约每 2 秒推送一次。状态最多按此频率写入（1–60 秒）。"
+}

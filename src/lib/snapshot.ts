@@ -52,7 +52,11 @@ export interface Snapshot {
   inverterPowerW: number | null;
   /** Berechnete Hauslast in W (kein Messwert, siehe computeHouseLoad). */
   housePowerW: number | null;
-  phases: { a: PhaseValues | null; b: PhaseValues | null; c: PhaseValues | null };
+  phases: {
+    a: PhaseValues | null;
+    b: PhaseValues | null;
+    c: PhaseValues | null;
+  };
   /** PV-String-Leistungen: Index -> Watt. */
   pvStrings: Map<number, number>;
   batteryPacks: Map<number, BatteryPack>;
@@ -83,7 +87,9 @@ const EMPTY_PHASE: PhaseValues = {
   apparentPower: null,
 };
 
-/** Uebernimmt nur die tatsaechlich uebertragenen Felder (Delta-Kodierung). */
+/**
+ * Uebernimmt nur die tatsaechlich uebertragenen Felder (Delta-Kodierung).
+ */
 function mergePhase(previous: PhaseValues | null, partial: Partial<DecodedPhase>): PhaseValues {
   const base = previous ?? { ...EMPTY_PHASE };
   return {
@@ -95,7 +101,9 @@ function mergePhase(previous: PhaseValues | null, partial: Partial<DecodedPhase>
   };
 }
 
-/** Vollstaendige Phase (alter Nachrichtentyp cmdFunc 96) uebernehmen. */
+/**
+ * Vollstaendige Phase (alter Nachrichtentyp cmdFunc 96) uebernehmen.
+ */
 function fullPhase(p: DecodedPhase): PhaseValues {
   return {
     voltage: p.vol,
@@ -122,7 +130,12 @@ export function computeHouseLoad(s: Snapshot): number | null {
  * Fuehrt eine dekodierte Nachricht in den Vorzustand ein und gibt den neuen
  * Gesamtzustand zurueck. `previous` wird dabei nicht veraendert.
  */
-export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: DecodedMessage, now = Date.now()): Snapshot {
+export function mergeSnapshot(
+  sn: string,
+  previous: Snapshot | null,
+  msg: DecodedMessage,
+  now = Date.now(),
+): Snapshot {
   const base = previous ?? emptySnapshot(sn);
   const s: Snapshot = {
     ...base,
@@ -144,7 +157,11 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
   }
   if (msg.emsHeartbeat) {
     const hb = msg.emsHeartbeat;
-    s.phases = { a: fullPhase(hb.pcsAPhase), b: fullPhase(hb.pcsBPhase), c: fullPhase(hb.pcsCPhase) };
+    s.phases = {
+      a: fullPhase(hb.pcsAPhase),
+      b: fullPhase(hb.pcsBPhase),
+      c: fullPhase(hb.pcsCPhase),
+    };
     hb.pvStrings.forEach((pv, i) => s.pvStrings.set(i + 1, pv.pwr));
     if (s.batteryPowerW === null && hb.emsBpPower !== 0) {
       s.batteryPowerW = hb.emsBpPower;
@@ -167,18 +184,32 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
   // ── Neue Generation (cmdFunc 254) ──────────────────────────────────────────
   if (msg.po2Telemetry) {
     const t = msg.po2Telemetry;
-    if (t.pvPowerW !== null) s.pvPowerW = t.pvPowerW;
-    if (t.gridPowerW !== null) s.gridPowerW = t.gridPowerW;
-    if (t.batteryPowerW !== null) s.batteryPowerW = t.batteryPowerW;
-    if (t.socPercent !== null && t.socPercent > 0) s.batterySoc = t.socPercent;
-    if (t.remainingWh !== null && t.remainingWh > 0) s.batteryRemainingWh = t.remainingWh;
-    if (t.pcsTotalW !== null) s.inverterPowerW = t.pcsTotalW;
+    if (t.pvPowerW !== null) {
+      s.pvPowerW = t.pvPowerW;
+    }
+    if (t.gridPowerW !== null) {
+      s.gridPowerW = t.gridPowerW;
+    }
+    if (t.batteryPowerW !== null) {
+      s.batteryPowerW = t.batteryPowerW;
+    }
+    if (t.socPercent !== null && t.socPercent > 0) {
+      s.batterySoc = t.socPercent;
+    }
+    if (t.remainingWh !== null && t.remainingWh > 0) {
+      s.batteryRemainingWh = t.remainingWh;
+    }
+    if (t.pcsTotalW !== null) {
+      s.inverterPowerW = t.pcsTotalW;
+    }
 
     // Phasen delta-kodiert: nur uebertragene Felder ueberschreiben
     const keys = [null, 'a', 'b', 'c'] as const;
     for (const [index, partial] of t.phases) {
       const key = keys[index];
-      if (!key) continue;
+      if (!key) {
+        continue;
+      }
       s.phases[key] = mergePhase(s.phases[key], partial);
     }
     for (const [index, power] of t.pvStrings) {
@@ -229,7 +260,9 @@ export function sumPhases(s: Snapshot, key: keyof PhaseValues): number | null {
   return sum;
 }
 
-/** Mittelwert eines Phasenwerts (sinnvoll fuer die Spannung, wo Summieren unsinnig waere). */
+/**
+ * Mittelwert eines Phasenwerts (sinnvoll fuer die Spannung, wo Summieren unsinnig waere).
+ */
 export function averagePhases(s: Snapshot, key: keyof PhaseValues): number | null {
   const present = PHASE_KEYS.map((k) => s.phases[k]).filter((p): p is PhaseValues => p !== null);
   const values = present.map((p) => p[key]).filter((v): v is number => v !== null);
@@ -239,13 +272,15 @@ export function averagePhases(s: Snapshot, key: keyof PhaseValues): number | nul
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
-/** True, wenn die Nachricht ueberhaupt verwertbare Daten enthielt. */
+/**
+ * True, wenn die Nachricht ueberhaupt verwertbare Daten enthielt.
+ */
 export function hasPayload(msg: DecodedMessage): boolean {
   return Boolean(
     msg.energyStream ||
-      msg.emsHeartbeat ||
-      msg.po2Telemetry ||
-      msg.batteryPacks.length > 0 ||
-      msg.po2BatteryPacks.length > 0,
+    msg.emsHeartbeat ||
+    msg.po2Telemetry ||
+    msg.batteryPacks.length > 0 ||
+    msg.po2BatteryPacks.length > 0,
   );
 }

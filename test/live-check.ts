@@ -28,7 +28,9 @@ const client = new EcoflowClient({
   onConnectionChange: (connected) => console.log(`[conn ] connected=${connected}`),
   onSnapshot: (s: Snapshot) => {
     count++;
-    if (count % 5 !== 0) return; // nicht jede Nachricht ausgeben
+    if (count % 5 !== 0) {
+      return;
+    } // nicht jede Nachricht ausgeben
     console.log(
       `#${count} PV=${fmt(s.pvPowerW)}W Batt=${fmt(s.batteryPowerW)}W SoC=${fmt(s.batterySoc)}% ` +
         `Netz=${fmt(s.gridPowerW)}W Haus=${fmt(s.housePowerW)}W WR=${fmt(s.inverterPowerW)}W | ` +

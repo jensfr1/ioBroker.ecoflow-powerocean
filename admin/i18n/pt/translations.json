@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "Este adaptador usa a API (não oficial) do aplicativo EcoFlow, porque a API oficial para programadores não devolve dados em tempo real para estes dispositivos. A EcoFlow pode alterá-la a qualquer momento.",
+  "label_email": "E-mail da conta EcoFlow",
+  "help_email": "O mesmo início de sessão que usa no aplicativo EcoFlow",
+  "label_password": "Palavra-passe",
+  "help_password": "Guardada encriptada pelo ioBroker",
+  "label_deviceSn": "Número de série",
+  "help_deviceSn": "Número de série do inversor, por exemplo RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Intervalo de atualização (segundos)",
+  "help_throttleSeconds": "O dispositivo envia cerca de cada 2 s. Os estados são escritos no máximo com esta frequência (1–60 s)."
+}

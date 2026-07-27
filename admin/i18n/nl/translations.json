@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "Deze adapter gebruikt de (onofficiële) app-API van EcoFlow, omdat de officiële Developer API geen live gegevens voor deze apparaten teruggeeft. EcoFlow kan deze op elk moment wijzigen.",
+  "label_email": "E-mail van het EcoFlow-account",
+  "help_email": "Dezelfde login als in de EcoFlow-app",
+  "label_password": "Wachtwoord",
+  "help_password": "Wordt versleuteld opgeslagen door ioBroker",
+  "label_deviceSn": "Serienummer",
+  "help_deviceSn": "Serienummer van de omvormer, bijv. RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Update-interval (seconden)",
+  "help_throttleSeconds": "Het apparaat verstuurt ongeveer elke 2 s. States worden hoogstens zo vaak geschreven (1–60 s)."
+}

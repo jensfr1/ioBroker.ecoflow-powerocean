@@ -4,11 +4,19 @@
     "version": "0.1.0",
     "news": {
       "0.1.0": {
-        "en": "Initial release: live data for EcoFlow PowerOcean via app MQTT",
-        "de": "Erste Version: Livedaten für EcoFlow PowerOcean über das App-MQTT"
+        "en": "Initial release: live data for EcoFlow Ocean 2 via app MQTT",
+        "de": "Erste Version: Livedaten für EcoFlow Ocean 2 über das App-MQTT",
+        "ru": "Первый выпуск: данные в реальном времени для EcoFlow Ocean 2 через MQTT приложения",
+        "pt": "Versão inicial: dados em tempo real do EcoFlow Ocean 2 via MQTT do aplicativo",
+        "nl": "Eerste versie: live gegevens voor EcoFlow Ocean 2 via de app-MQTT",
+        "fr": "Première version : données en direct pour EcoFlow Ocean 2 via le MQTT de l'application",
+        "it": "Prima versione: dati in tempo reale per EcoFlow Ocean 2 tramite l'MQTT dell'app",
+        "es": "Primera versión: datos en vivo de EcoFlow Ocean 2 a través del MQTT de la aplicación",
+        "pl": "Pierwsza wersja: dane na żywo dla EcoFlow Ocean 2 przez MQTT aplikacji",
+        "uk": "Перший випуск: дані в реальному часі для EcoFlow Ocean 2 через MQTT застосунку",
+        "zh-cn": "首个版本：通过应用 MQTT 获取 EcoFlow Ocean 2 的实时数据"
       }
     },
-    "title": "EcoFlow Ocean 2",
     "titleLang": {
       "en": "EcoFlow Ocean 2",
       "de": "EcoFlow Ocean 2"
@@ -17,11 +25,19 @@
       "en": "Reads live data (PV, battery, grid, phases) from the EcoFlow Ocean 2 and other PowerOcean systems. Uses the EcoFlow app MQTT broker, because the official Developer API does not deliver live data for these devices.",
       "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) vom EcoFlow Ocean 2 und anderen PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für diese Geräte keine Livedaten liefert."
     },
-    "authors": ["Jens Franke <jensfr@gmail.com>"],
-    "keywords": ["ecoflow", "ocean2", "ocean 2", "powerocean", "photovoltaic", "battery", "energy"],
-    "license": "MIT",
+    "authors": [
+      "Jens Franke <jensfr@gmail.com>"
+    ],
+    "keywords": [
+      "ecoflow",
+      "ocean2",
+      "ocean 2",
+      "powerocean",
+      "photovoltaic",
+      "battery",
+      "energy"
+    ],
     "platform": "Javascript/Node.js",
-    "main": "build/main.js",
     "icon": "ecoflow-powerocean.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/jensfr1/ioBroker.ecoflow-powerocean/main/admin/ecoflow-powerocean.png",
@@ -37,14 +53,19 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
       {
-        "admin": ">=6.13.16"
+        "admin": ">=7.6.20"
       }
-    ]
+    ],
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
+    "tier": 3
   },
   "native": {
     "email": "",
@@ -52,8 +73,12 @@
     "deviceSn": "",
     "throttleSeconds": 10
   },
-  "encryptedNative": ["password"],
-  "protectedNative": ["password"],
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
   "objects": [],
   "instanceObjects": [
     {

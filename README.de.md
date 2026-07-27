@@ -137,4 +137,8 @@ Ein Stern auf GitHub kostet nichts und hilft genauso.
 
 ## Lizenz
 
-MIT — siehe [LICENSE](LICENSE).
+MIT License
+
+Copyright (c) 2026 Jens Franke
+
+Vollständiger Text in [LICENSE](LICENSE).

@@ -44,17 +44,23 @@ function decodeFields(data: Uint8Array): Fields {
     if (wireType === 0) {
       [value, pos] = readVarint(data, pos);
     } else if (wireType === 1) {
-      if (pos + 8 > data.length) break;
+      if (pos + 8 > data.length) {
+        break;
+      }
       value = view.getFloat64(pos, true);
       pos += 8;
     } else if (wireType === 2) {
       let length: number;
       [length, pos] = readVarint(data, pos);
-      if (pos + length > data.length) break;
+      if (pos + length > data.length) {
+        break;
+      }
       value = data.subarray(pos, pos + length);
       pos += length;
     } else if (wireType === 5) {
-      if (pos + 4 > data.length) break;
+      if (pos + 4 > data.length) {
+        break;
+      }
       value = view.getFloat32(pos, true);
       pos += 4;
     } else {
@@ -184,10 +190,14 @@ function decodeEmsHeartbeat(pdata: Uint8Array): DecodedEmsHeartbeat {
   const f = decodeFields(pdata);
   const pvStrings: DecodedPvString[] = [];
   for (const entryRaw of f.get(31) ?? []) {
-    if (!(entryRaw instanceof Uint8Array)) continue;
+    if (!(entryRaw instanceof Uint8Array)) {
+      continue;
+    }
     const entry = decodeFields(entryRaw);
     for (const pvRaw of entry.get(1) ?? []) {
-      if (!(pvRaw instanceof Uint8Array)) continue;
+      if (!(pvRaw instanceof Uint8Array)) {
+        continue;
+      }
       const pv = decodeFields(pvRaw);
       pvStrings.push({ vol: num(pv, 1), amp: num(pv, 2), pwr: num(pv, 3) });
     }
@@ -198,9 +208,15 @@ function decodeEmsHeartbeat(pdata: Uint8Array): DecodedEmsHeartbeat {
     frequencyHz = num(decodeFields(loadInfo), 3);
   }
   return {
-    pcsAPhase: f.get(12) ? decodePhase(bytes(f, 12)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
-    pcsBPhase: f.get(13) ? decodePhase(bytes(f, 13)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
-    pcsCPhase: f.get(14) ? decodePhase(bytes(f, 14)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+    pcsAPhase: f.get(12)
+      ? decodePhase(bytes(f, 12))
+      : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+    pcsBPhase: f.get(13)
+      ? decodePhase(bytes(f, 13))
+      : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+    pcsCPhase: f.get(14)
+      ? decodePhase(bytes(f, 14))
+      : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
     frequencyHz,
     pvStrings,
     emsBpPower: num(f, 59),
@@ -213,7 +229,9 @@ function decodeBatteryPacks(pdata: Uint8Array): DecodedBatteryPack[] {
   const outer = decodeFields(pdata);
   const packs: DecodedBatteryPack[] = [];
   for (const packRaw of outer.get(1) ?? []) {
-    if (!(packRaw instanceof Uint8Array)) continue;
+    if (!(packRaw instanceof Uint8Array)) {
+      continue;
+    }
     const f = decodeFields(packRaw);
     const snB64 = Buffer.from(bytes(f, 16)).toString('utf8');
     let sn = snB64;
@@ -290,7 +308,7 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
 
   // Feld 7 (bzw. 87) = Erzeugungs-Zusammenfassung: 1=Gesamt, 3=PV,
   // 4=Batterieleistung (signiert: negativ = Entladen, positiv = Laden)
-  const gen = (f.get(7)?.[0] ?? f.get(87)?.[0]);
+  const gen = f.get(7)?.[0] ?? f.get(87)?.[0];
   if (gen instanceof Uint8Array) {
     const g = decodeFields(gen);
     // Nur setzen, wenn das Feld wirklich vorhanden ist — sonst wuerde ein
@@ -313,23 +331,39 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
     const phaseBlock = p.get(3)?.[0];
     if (phaseBlock instanceof Uint8Array) {
       for (const entryRaw of decodeFields(phaseBlock).get(1) ?? []) {
-        if (!(entryRaw instanceof Uint8Array)) continue;
+        if (!(entryRaw instanceof Uint8Array)) {
+          continue;
+        }
         const e = decodeFields(entryRaw);
         const idx = num(e, 6);
-        if (idx < 1 || idx > 3) continue;
+        if (idx < 1 || idx > 3) {
+          continue;
+        }
         const phase: Partial<DecodedPhase> = {};
-        if (e.has(1)) phase.vol = num(e, 1);
-        if (e.has(2)) phase.amp = num(e, 2);
-        if (e.has(3)) phase.actPwr = num(e, 3);
-        if (e.has(4)) phase.reactPwr = num(e, 4);
-        if (e.has(5)) phase.apparentPwr = num(e, 5);
+        if (e.has(1)) {
+          phase.vol = num(e, 1);
+        }
+        if (e.has(2)) {
+          phase.amp = num(e, 2);
+        }
+        if (e.has(3)) {
+          phase.actPwr = num(e, 3);
+        }
+        if (e.has(4)) {
+          phase.reactPwr = num(e, 4);
+        }
+        if (e.has(5)) {
+          phase.apparentPwr = num(e, 5);
+        }
         result.phases.set(idx, phase);
       }
     }
     const pvBlock = p.get(14)?.[0];
     if (pvBlock instanceof Uint8Array) {
       for (const entryRaw of decodeFields(pvBlock).get(1) ?? []) {
-        if (!(entryRaw instanceof Uint8Array)) continue;
+        if (!(entryRaw instanceof Uint8Array)) {
+          continue;
+        }
         const e = decodeFields(entryRaw);
         const idx = num(e, 1);
         if (idx >= 1 && e.has(4)) {
@@ -365,19 +399,25 @@ function decodePo2BatteryPack(pdata: Uint8Array): DecodedPo2BatteryPack | null {
   };
 }
 
-/** Dekodiert eine rohe MQTT-Payload vom Topic /app/device/property/{SN}. */
+/**
+ * Dekodiert eine rohe MQTT-Payload vom Topic /app/device/property/{SN}.
+ */
 export function decodeMqttPayload(raw: Uint8Array): DecodedMessage {
   const result: DecodedMessage = { batteryPacks: [], po2BatteryPacks: [] };
   const outer = decodeFields(raw);
   for (const headerRaw of outer.get(1) ?? []) {
-    if (!(headerRaw instanceof Uint8Array)) continue;
+    if (!(headerRaw instanceof Uint8Array)) {
+      continue;
+    }
     const h = decodeFields(headerRaw);
     const cmdFunc = num(h, 8);
     const cmdId = num(h, 9);
     const encType = num(h, 6);
     const seq = num(h, 14);
     let pdata = bytes(h, 1);
-    if (pdata.length === 0) continue;
+    if (pdata.length === 0) {
+      continue;
+    }
     if (encType === 1) {
       pdata = xorDecrypt(pdata, seq);
     }

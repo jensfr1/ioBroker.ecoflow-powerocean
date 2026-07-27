@@ -24,14 +24,15 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.2.3",
+    "@iobroker/adapter-core": "^3.4.1",
     "mqtt": "^5.15.2"
   },
   "devDependencies": {
     "@iobroker/testing": "^5.0.4",
-    "@types/node": "^22.10.0",
+    "@types/node": "^20.19.0",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "@iobroker/eslint-config": "^2.3.4"
   },
   "main": "build/main.js",
   "files": [
@@ -45,7 +46,8 @@
     "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:package": "mocha test/package.test.js --exit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "lint": "eslint ."
   },
   "bugs": {
     "url": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean/issues"

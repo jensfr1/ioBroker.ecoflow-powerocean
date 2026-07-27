@@ -55,12 +55,18 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
       onConnectionChange: (connected) => {
         void this.setStateAsync('info.connection', { val: connected, ack: true });
       },
+      // Timer ueber den Adapter fuehren, damit der js-controller sie beim
+      // Entladen mit abraeumt - sonst "Adapter did not stop".
+      setInterval: (handler, ms) => this.setInterval(handler, ms),
+      clearInterval: (timer) => this.clearInterval(timer as ioBroker.Interval),
     });
 
     try {
       await this.client.start();
     } catch (error) {
-      this.log.error(`Could not connect: ${error instanceof Error ? error.message : String(error)}`);
+      this.log.error(
+        `Could not connect: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -92,7 +98,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
     for (const phase of PHASE_KEYS) {
       await this.setObjectNotExistsAsync(`phases.${phase}`, {
         type: 'channel',
-        common: { name: { en: `Phase ${phase.toUpperCase()}`, de: `Phase ${phase.toUpperCase()}` } },
+        common: {
+          name: { en: `Phase ${phase.toUpperCase()}`, de: `Phase ${phase.toUpperCase()}` },
+        },
         native: {},
       });
       for (const def of PHASE_STATES) {
@@ -109,7 +117,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
     }
   }
 
-  /** Legt einen State an (Name bewusst nicht "createState" - kollidiert mit der Basisklasse). */
+  /**
+   * Legt einen State an (Name bewusst nicht "createState" - kollidiert mit der Basisklasse).
+   */
   private async defineState(def: StateDef): Promise<void> {
     await this.setObjectNotExistsAsync(def.id, {
       type: 'state',
@@ -128,7 +138,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
     });
   }
 
-  /** Legt PV-String- bzw. Batterie-Modul-Objekte beim ersten Auftreten an. */
+  /**
+   * Legt PV-String- bzw. Batterie-Modul-Objekte beim ersten Auftreten an.
+   */
   private async ensureDynamicChannel(
     channelId: string,
     channelName: { en: string; de: string },
@@ -162,7 +174,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
     try {
       await this.writeSnapshot(snapshot);
     } catch (error) {
-      this.log.warn(`Could not write states: ${error instanceof Error ? error.message : String(error)}`);
+      this.log.warn(
+        `Could not write states: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -188,7 +202,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
 
     for (const key of PHASE_KEYS) {
       const phase = s.phases[key];
-      if (!phase) continue;
+      if (!phase) {
+        continue;
+      }
       await set(`phases.${key}.voltage`, round(phase.voltage, 1));
       await set(`phases.${key}.current`, round(phase.current, 2));
       await set(`phases.${key}.activePower`, round(phase.activePower));
@@ -204,11 +220,15 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
 
     for (const [index, power] of s.pvStrings) {
       const channelId = `pv.strings.${index}`;
-      await this.ensureDynamicChannel(
-        channelId,
-        { en: `String ${index}`, de: `String ${index}` },
-        [{ key: 'power', name: { en: 'Power', de: 'Leistung' }, type: 'number', role: 'value.power', unit: 'W' }],
-      );
+      await this.ensureDynamicChannel(channelId, { en: `String ${index}`, de: `String ${index}` }, [
+        {
+          key: 'power',
+          name: { en: 'Power', de: 'Leistung' },
+          type: 'number',
+          role: 'value.power',
+          unit: 'W',
+        },
+      ]);
       await set(`${channelId}.power`, round(power));
     }
 
@@ -237,7 +257,8 @@ function round(value: number | null, digits = 0): number | null {
 }
 
 if (require.main !== module) {
-  module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new EcoflowPowerOceanAdapter(options);
+  module.exports = (options: Partial<utils.AdapterOptions> | undefined) =>
+    new EcoflowPowerOceanAdapter(options);
 } else {
   (() => new EcoflowPowerOceanAdapter())();
 }

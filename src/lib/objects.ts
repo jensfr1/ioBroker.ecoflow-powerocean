@@ -9,8 +9,14 @@
 
 export interface StateDef {
   id: string;
-  name: { en: string; de: string };
-  desc?: { en: string; de: string };
+  name: {
+    en: string;
+    de: string;
+  };
+  desc?: {
+    en: string;
+    de: string;
+  };
   type: 'number' | 'string' | 'boolean';
   role: string;
   unit?: string;
@@ -20,7 +26,10 @@ export interface StateDef {
 
 export interface ChannelDef {
   id: string;
-  name: { en: string; de: string };
+  name: {
+    en: string;
+    de: string;
+  };
 }
 
 export const CHANNELS: ChannelDef[] = [
@@ -121,8 +130,20 @@ export const STATES: StateDef[] = [
 
 /** Datenpunkte je Phase (a/b/c). */
 export const PHASE_STATES: Array<Omit<StateDef, 'id'> & { key: string }> = [
-  { key: 'voltage', name: { en: 'Voltage', de: 'Spannung' }, type: 'number', role: 'value.voltage', unit: 'V' },
-  { key: 'current', name: { en: 'Current', de: 'Strom' }, type: 'number', role: 'value.current', unit: 'A' },
+  {
+    key: 'voltage',
+    name: { en: 'Voltage', de: 'Spannung' },
+    type: 'number',
+    role: 'value.voltage',
+    unit: 'V',
+  },
+  {
+    key: 'current',
+    name: { en: 'Current', de: 'Strom' },
+    type: 'number',
+    role: 'value.current',
+    unit: 'A',
+  },
   {
     key: 'activePower',
     name: { en: 'Active power', de: 'Wirkleistung' },
@@ -164,7 +185,13 @@ export const PACK_STATES: Array<Omit<StateDef, 'id'> & { key: string }> = [
     role: 'value.temperature',
     unit: '°C',
   },
-  { key: 'voltage', name: { en: 'Voltage', de: 'Spannung' }, type: 'number', role: 'value.voltage', unit: 'V' },
+  {
+    key: 'voltage',
+    name: { en: 'Voltage', de: 'Spannung' },
+    type: 'number',
+    role: 'value.voltage',
+    unit: 'V',
+  },
   {
     key: 'capacityWh',
     name: { en: 'Remaining energy', de: 'Verbleibende Energie' },
@@ -172,7 +199,12 @@ export const PACK_STATES: Array<Omit<StateDef, 'id'> & { key: string }> = [
     role: 'value.energy',
     unit: 'Wh',
   },
-  { key: 'sn', name: { en: 'Serial number', de: 'Seriennummer' }, type: 'string', role: 'info.serial' },
+  {
+    key: 'sn',
+    name: { en: 'Serial number', de: 'Seriennummer' },
+    type: 'string',
+    role: 'info.serial',
+  },
 ];
 
 export const PHASE_KEYS = ['a', 'b', 'c'] as const;

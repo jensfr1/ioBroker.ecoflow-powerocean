@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "Ten adapter korzysta z (nieoficjalnego) API aplikacji EcoFlow, ponieważ oficjalne API dla programistów nie zwraca danych na żywo dla tych urządzeń. EcoFlow może je zmienić w każdej chwili.",
+  "label_email": "E-mail konta EcoFlow",
+  "help_email": "Ten sam login, którego używasz w aplikacji EcoFlow",
+  "label_password": "Hasło",
+  "help_password": "Przechowywane w ioBroker w postaci zaszyfrowanej",
+  "label_deviceSn": "Numer seryjny",
+  "help_deviceSn": "Numer seryjny falownika, np. RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Interwał aktualizacji (sekundy)",
+  "help_throttleSeconds": "Urządzenie wysyła dane mniej więcej co 2 s. Stany są zapisywane najwyżej tak często (1–60 s)."
+}

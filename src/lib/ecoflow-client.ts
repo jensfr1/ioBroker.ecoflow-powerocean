@@ -43,7 +43,25 @@ export interface EcoflowClientOptions {
   onSnapshot: (snapshot: Snapshot) => void;
   /** Verbindungsstatus fuer info.connection. */
   onConnectionChange: (connected: boolean) => void;
+  /**
+   * Timer-Funktionen des Adapters. ioBroker verlangt `adapter.setInterval`
+   * statt des globalen `setInterval`: Nur die vom Adapter verwalteten Timer
+   * raeumt der js-controller beim Entladen mit ab. Bleibt ein Timer stehen,
+   * meldet ioBroker "Adapter did not stop" und beendet den Prozess hart.
+   *
+   * Ohne Angabe greifen die globalen Funktionen - so laufen die Tests, die
+   * ohne Adapter-Instanz auskommen.
+   */
+  setInterval?: (handler: () => void, ms: number) => TimerHandle;
+  clearInterval?: (timer: TimerHandle) => void;
 }
+
+/**
+ * Opaker Timer-Handle. Global liefert `setInterval` ein `NodeJS.Timeout`, der
+ * Adapter dagegen ein eigenes `ioBroker.Interval`. Beide werden nur
+ * durchgereicht, nie ausgewertet - deshalb bewusst untypisiert.
+ */
+export type TimerHandle = unknown;
 
 interface Session {
   token: string;
@@ -60,13 +78,31 @@ interface MqttCredentials {
 
 export class EcoflowClient {
   private client: MqttClient | null = null;
-  private triggerTimer: NodeJS.Timeout | null = null;
+  /** null = kein Timer aktiv (TimerHandle ist unknown, schliesst null ein). */
+  private triggerTimer: TimerHandle = null;
   private snapshot: Snapshot | null = null;
   private session: Session | null = null;
   private reconnectCount = 0;
   private stopped = false;
 
   constructor(private readonly options: EcoflowClientOptions) {}
+
+  /**
+   * Timer ueber den Adapter anlegen, damit onUnload ihn sicher abraeumt.
+   */
+  private startTimer(handler: () => void, ms: number): TimerHandle {
+    return this.options.setInterval
+      ? this.options.setInterval(handler, ms)
+      : setInterval(handler, ms);
+  }
+
+  private stopTimer(timer: TimerHandle): void {
+    if (this.options.clearInterval) {
+      this.options.clearInterval(timer);
+    } else {
+      clearInterval(timer as NodeJS.Timeout);
+    }
+  }
 
   /** Login, MQTT-Verbindung aufbauen und Telemetrie abonnieren. */
   async start(): Promise<void> {
@@ -81,7 +117,7 @@ export class EcoflowClient {
   async stop(): Promise<void> {
     this.stopped = true;
     if (this.triggerTimer) {
-      clearInterval(this.triggerTimer);
+      this.stopTimer(this.triggerTimer);
       this.triggerTimer = null;
     }
     const client = this.client;
@@ -108,7 +144,12 @@ export class EcoflowClient {
     const json = (await response.json()) as {
       code: string;
       message: string;
-      data?: { token: string; user: { userId: string } };
+      data?: {
+        token: string;
+        user: {
+          userId: string;
+        };
+      };
     };
     if (json.code !== '0' || !json.data) {
       throw new Error(`Login failed: ${json.message} (code ${json.code})`);
@@ -120,7 +161,11 @@ export class EcoflowClient {
     const response = await fetch(`${CERT_URL}?userId=${encodeURIComponent(session.userId)}`, {
       headers: { authorization: `Bearer ${session.token}`, 'content-type': 'application/json' },
     });
-    const json = (await response.json()) as { code: string; message: string; data?: MqttCredentials };
+    const json = (await response.json()) as {
+      code: string;
+      message: string;
+      data?: MqttCredentials;
+    };
     if (json.code !== '0' || !json.data) {
       throw new Error(`MQTT certification failed: ${json.message} (code ${json.code})`);
     }
@@ -185,9 +230,9 @@ export class EcoflowClient {
     });
 
     if (this.triggerTimer) {
-      clearInterval(this.triggerTimer);
+      this.stopTimer(this.triggerTimer);
     }
-    this.triggerTimer = setInterval(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
+    this.triggerTimer = this.startTimer(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
   }
 
   /** Verbindung verwerfen und mit frischen Zugangsdaten neu aufbauen. */
@@ -204,11 +249,15 @@ export class EcoflowClient {
     try {
       await this.connect();
     } catch (error) {
-      this.options.log.error(`Reconnect failed: ${error instanceof Error ? error.message : String(error)}`);
+      this.options.log.error(
+        `Reconnect failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
-  /** Weckruf: ohne diese Anfrage sendet das Geraet keine Telemetrie. */
+  /**
+   * Weckruf: ohne diese Anfrage sendet das Geraet keine Telemetrie.
+   */
   private requestLatestQuotas(topic: string): void {
     if (!this.client?.connected) {
       return;
@@ -235,7 +284,9 @@ export class EcoflowClient {
       this.snapshot = mergeSnapshot(this.options.deviceSn, this.snapshot, decoded);
       this.options.onSnapshot(this.snapshot);
     } catch (error) {
-      this.options.log.debug(`Decode error: ${error instanceof Error ? error.message : String(error)}`);
+      this.options.log.debug(
+        `Decode error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 }

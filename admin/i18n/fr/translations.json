@@ -1,0 +1,11 @@
+{
+  "hint_unofficial_api": "Cet adaptateur utilise l'API (non officielle) de l'application EcoFlow, car l'API officielle pour développeurs ne renvoie pas de données en direct pour ces appareils. EcoFlow peut la modifier à tout moment.",
+  "label_email": "E-mail du compte EcoFlow",
+  "help_email": "Le même identifiant que dans l'application EcoFlow",
+  "label_password": "Mot de passe",
+  "help_password": "Stocké chiffré par ioBroker",
+  "label_deviceSn": "Numéro de série",
+  "help_deviceSn": "Numéro de série de l'onduleur, par ex. RE11XXXXXXXXXXXX",
+  "label_throttleSeconds": "Intervalle de mise à jour (secondes)",
+  "help_throttleSeconds": "L'appareil émet environ toutes les 2 s. Les états sont écrits au plus à cette fréquence (1–60 s)."
+}
