@@ -1,54 +1,71 @@
 name: Test and Release
 
+# Aufbau nach der Vorlage aus ioBroker.example.
 on:
   push:
-    branches: [main]
-    tags: ['v*']
-  pull_request:
-    branches: [main]
+    branches:
+      - 'main'
+    tags:
+      # regulaere Versionen
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      # Vorabversionen
+      - 'v[0-9]+.[0-9]+.[0-9]+-**'
+  pull_request: {}
 
 # Aeltere Laeufe desselben Zweigs abbrechen, wenn schnell nachgeschoben wird.
-# Fuer Tags nicht - dort haengt eine Veroeffentlichung dran.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # Paket- und io-package-Konsistenz, wie es das ioBroker-Projekt vorgibt.
+  # Schnelle Pruefungen vor den teuren Testlaeufen
   check-and-lint:
+    if: contains(github.event.head_commit.message, '[skip ci]') == false
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: ioBroker/testing-action-check@v1
         with:
-          node-version: 22.x
+          node-version: '24.x'
           lint: true
 
+  # Tests auf allen unterstuetzten Node-Versionen und Betriebssystemen
   adapter-tests:
-    needs: [check-and-lint]
+    if: contains(github.event.head_commit.message, '[skip ci]') == false
+
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node-version: [22.x, 24.x]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-adapter@v1
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
+          os: ${{ matrix.os }}
 
+  # Veroeffentlichung bei einem Versions-Tag.
+  # Setzt "trusted publishing" im npm-Konto voraus - deshalb bewusst kein
+  # npm-token: mit gesetztem Token funktioniert trusted publishing nicht.
   deploy:
-    # Nur bei einem v*-Tag veroeffentlichen.
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: [check-and-lint, adapter-tests]
+
+    if: |
+      contains(github.event.head_commit.message, '[skip ci]') == false &&
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/v')
+
     runs-on: ubuntu-latest
+
+    # Schreibrechte fuer GitHub-Releases, id-token fuer trusted publishing.
+    permissions:
+      id-token: write
+      contents: write
+
     steps:
       - uses: ioBroker/testing-action-deploy@v1
         with:
-          node-version: 22.x
+          node-version: '24.x'
           build: true
-          npm-token: ${{ secrets.NPM_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
