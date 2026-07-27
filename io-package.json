@@ -19,11 +19,29 @@
     },
     "titleLang": {
       "en": "EcoFlow Ocean 2",
-      "de": "EcoFlow Ocean 2"
+      "de": "EcoFlow Ocean 2",
+      "ru": "EcoFlow Ocean 2",
+      "pt": "EcoFlow Ocean 2",
+      "nl": "EcoFlow Ocean 2",
+      "fr": "EcoFlow Ocean 2",
+      "it": "EcoFlow Ocean 2",
+      "es": "EcoFlow Ocean 2",
+      "pl": "EcoFlow Ocean 2",
+      "uk": "EcoFlow Ocean 2",
+      "zh-cn": "EcoFlow Ocean 2"
     },
     "desc": {
       "en": "Reads live data (PV, battery, grid, phases) from the EcoFlow Ocean 2 and other PowerOcean systems. Uses the EcoFlow app MQTT broker, because the official Developer API does not deliver live data for these devices.",
-      "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) vom EcoFlow Ocean 2 und anderen PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für diese Geräte keine Livedaten liefert."
+      "de": "Liest Livedaten (PV, Batterie, Netz, Phasen) vom EcoFlow Ocean 2 und anderen PowerOcean-Anlagen. Nutzt das App-MQTT von EcoFlow, da die offizielle Developer-API für diese Geräte keine Livedaten liefert.",
+      "ru": "Считывает данные в реальном времени (солнечная энергия, батарея, сеть, фазы) с EcoFlow Ocean 2 и других систем PowerOcean. Использует MQTT-брокер приложения EcoFlow, поскольку официальный Developer API не предоставляет данные для этих устройств.",
+      "pt": "Lê dados em tempo real (solar, bateria, rede, fases) do EcoFlow Ocean 2 e de outros sistemas PowerOcean. Usa o broker MQTT do aplicativo EcoFlow, porque a API oficial para programadores não fornece dados em tempo real para estes dispositivos.",
+      "nl": "Leest live gegevens (zon, accu, net, fasen) van de EcoFlow Ocean 2 en andere PowerOcean-systemen. Gebruikt de MQTT-broker van de EcoFlow-app, omdat de officiële Developer API geen live gegevens voor deze apparaten levert.",
+      "fr": "Lit les données en direct (solaire, batterie, réseau, phases) de l'EcoFlow Ocean 2 et d'autres systèmes PowerOcean. Utilise le courtier MQTT de l'application EcoFlow, car l'API officielle pour développeurs ne fournit pas de données en direct pour ces appareils.",
+      "it": "Legge i dati in tempo reale (solare, batteria, rete, fasi) dall'EcoFlow Ocean 2 e da altri sistemi PowerOcean. Usa il broker MQTT dell'app EcoFlow, perché l'API ufficiale per sviluppatori non fornisce dati in tempo reale per questi dispositivi.",
+      "es": "Lee datos en vivo (solar, batería, red, fases) del EcoFlow Ocean 2 y de otros sistemas PowerOcean. Usa el broker MQTT de la aplicación EcoFlow, porque la API oficial para desarrolladores no entrega datos en vivo para estos dispositivos.",
+      "pl": "Odczytuje dane na żywo (fotowoltaika, akumulator, sieć, fazy) z EcoFlow Ocean 2 i innych systemów PowerOcean. Korzysta z brokera MQTT aplikacji EcoFlow, ponieważ oficjalne API dla programistów nie dostarcza danych na żywo dla tych urządzeń.",
+      "uk": "Зчитує дані в реальному часі (сонячна енергія, акумулятор, мережа, фази) з EcoFlow Ocean 2 та інших систем PowerOcean. Використовує MQTT-брокер застосунку EcoFlow, оскільки офіційний Developer API не надає даних для цих пристроїв.",
+      "zh-cn": "读取 EcoFlow Ocean 2 及其他 PowerOcean 系统的实时数据（光伏、电池、电网、相位）。使用 EcoFlow 应用的 MQTT 代理，因为官方开发者 API 不会为这些设备提供实时数据。"
     },
     "authors": [
       "Jens Franke <jensfr@gmail.com>"
