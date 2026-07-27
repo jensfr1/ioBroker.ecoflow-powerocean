@@ -10,6 +10,8 @@ in den ioBroker-Objektbaum.
 
 Im ioBroker erscheint der Adapter als **EcoFlow Ocean 2**.
 
+Gerätehersteller: [EcoFlow Ocean 2](https://www.ecoflow.com/de/pages/ecoflow-ocean-2-solarspeicher-heimspeicher)
+
 ## Warum es diesen Adapter gibt
 
 Die offizielle **Developer-API von EcoFlow liefert für PowerOcean keine

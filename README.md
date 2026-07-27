@@ -10,6 +10,8 @@ values into the ioBroker object tree.
 
 The adapter appears in ioBroker as **EcoFlow Ocean 2**.
 
+Device manufacturer: [EcoFlow Ocean 2](https://www.ecoflow.com/de/pages/ecoflow-ocean-2-solarspeicher-heimspeicher)
+
 ## Why this adapter exists
 
 EcoFlow's official **Developer API does not return live data for PowerOcean**:
