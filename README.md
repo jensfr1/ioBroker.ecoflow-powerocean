@@ -93,14 +93,16 @@ ecoflow-powerocean.0
 ```
 
 **`house.power` is calculated, not measured.** The device does not report house
-load directly. It is derived from the energy balance:
+load directly. Two sources feed the house node — the inverter (which already
+accounts for solar and battery) and the grid:
 
 ```
-house = PV − battery + grid
+house = inverter output + grid import
 ```
 
-(battery positive = charging, grid positive = import). This matches how the
-EcoFlow portal presents the value.
+That is more accurate than going via `solar − battery + grid`, because
+conversion losses are already included in the inverter value. If either value
+is missing, the old balance is used as a fallback.
 
 ## Development
 

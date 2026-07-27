@@ -97,14 +97,16 @@ ecoflow-powerocean.0
 ```
 
 **`house.power` ist berechnet, nicht gemessen.** Das Gerät meldet die Hauslast
-nicht direkt. Sie ergibt sich aus der Energiebilanz:
+nicht direkt. Am Hausknoten hängen aber genau zwei Quellen — der
+Wechselrichter (der PV und Batterie bereits verrechnet hat) und das Netz:
 
 ```
-Haus = PV − Batterie + Netz
+Haus = Wechselrichter-Ausgang + Netzbezug
 ```
 
-(Batterie positiv = laden, Netz positiv = Bezug). Genauso stellt es auch das
-EcoFlow-Portal dar.
+Das ist genauer als der Umweg über `PV − Batterie + Netz`, weil die
+Wandlungsverluste schon im Wechselrichterwert stecken. Fehlt einer der beiden
+Werte, greift die alte Bilanz als Rückfallebene.
 
 ## Entwicklung
 
