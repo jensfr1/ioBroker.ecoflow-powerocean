@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
+      "0.1.1": {
+        "en": "Adapter now shuts down reliably; installation from GitHub works; admin translated into eleven languages",
+        "de": "Adapter beendet sich jetzt zuverlässig; Installation von GitHub funktioniert; Admin in elf Sprachen übersetzt",
+        "ru": "Адаптер теперь корректно завершает работу; установка с GitHub работает; интерфейс переведён на одиннадцать языков",
+        "pt": "O adaptador agora encerra de forma fiável; a instalação a partir do GitHub funciona; administração traduzida para onze idiomas",
+        "nl": "Adapter sluit nu betrouwbaar af; installatie vanaf GitHub werkt; beheer vertaald in elf talen",
+        "fr": "L'adaptateur s'arrête désormais de manière fiable ; l'installation depuis GitHub fonctionne ; administration traduite en onze langues",
+        "it": "L'adattatore ora si chiude in modo affidabile; l'installazione da GitHub funziona; amministrazione tradotta in undici lingue",
+        "es": "El adaptador ahora se cierra de forma fiable; la instalación desde GitHub funciona; administración traducida a once idiomas",
+        "pl": "Adapter kończy teraz pracę niezawodnie; instalacja z GitHuba działa; panel przetłumaczony na jedenaście języków",
+        "uk": "Адаптер тепер надійно завершує роботу; встановлення з GitHub працює; інтерфейс перекладено одинадцятьма мовами",
+        "zh-cn": "适配器现在可以可靠地停止；从 GitHub 安装可用；管理界面已翻译为十一种语言"
+      },
       "0.1.0": {
         "en": "Initial release: live data for EcoFlow Ocean 2 via app MQTT",
         "de": "Erste Version: Livedaten für EcoFlow Ocean 2 über das App-MQTT",

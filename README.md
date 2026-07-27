@@ -116,6 +116,16 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.1.1
+
+- Adapter now shuts down reliably: the keep-alive timer is managed by the
+  adapter, so ioBroker can clear it on unload
+- Installation from GitHub works: the compiled `build/` tree is part of the
+  repository now (installing from GitHub does not run a build step)
+- Admin dialog translated into eleven languages
+- Integration and package tests added, CI runs on Node 22/24 across Linux,
+  Windows and macOS
+
 ### 0.1.0
 - Initial release: live data via EcoFlow app MQTT, support for `cmdFunc 254`
   (new PowerOcean generation) and `cmdFunc 96` (older generation)

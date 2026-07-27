@@ -120,6 +120,16 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.1.1
+
+- Adapter beendet sich zuverlässig: Der Weckruf-Timer läuft jetzt über den
+  Adapter, damit ioBroker ihn beim Entladen abräumen kann
+- Installation von GitHub funktioniert: Das kompilierte `build/` liegt im
+  Repository (bei einer GitHub-Installation läuft kein Build-Schritt)
+- Admin-Dialog in elf Sprachen übersetzt
+- Integrations- und Pakettests ergänzt, CI läuft auf Node 22/24 unter Linux,
+  Windows und macOS
+
 ### 0.1.0
 
 - Erste Veröffentlichung: Livedaten über das EcoFlow-App-MQTT, Unterstützung für

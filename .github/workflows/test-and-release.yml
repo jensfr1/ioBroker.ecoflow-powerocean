@@ -53,10 +53,16 @@ jobs:
   deploy:
     needs: [check-and-lint, adapter-tests]
 
+    # Die Variable NPM_PUBLISH ist der Schalter: Solange "trusted publishing"
+    # im npm-Konto nicht eingerichtet ist, wuerde dieser Schritt bei jedem
+    # Versions-Tag scheitern. Zum Aktivieren im Repository unter
+    # Settings -> Secrets and variables -> Actions -> Variables anlegen:
+    # NPM_PUBLISH = true
     if: |
       contains(github.event.head_commit.message, '[skip ci]') == false &&
       github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/tags/v')
+      startsWith(github.ref, 'refs/tags/v') &&
+      vars.NPM_PUBLISH == 'true'
 
     runs-on: ubuntu-latest
 
