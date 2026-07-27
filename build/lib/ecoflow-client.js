@@ -43,22 +43,6 @@ class EcoflowClient {
     constructor(options) {
         this.options = options;
     }
-    /**
-     * Timer ueber den Adapter anlegen, damit onUnload ihn sicher abraeumt.
-     */
-    startTimer(handler, ms) {
-        return this.options.setInterval
-            ? this.options.setInterval(handler, ms)
-            : setInterval(handler, ms);
-    }
-    stopTimer(timer) {
-        if (this.options.clearInterval) {
-            this.options.clearInterval(timer);
-        }
-        else {
-            clearInterval(timer);
-        }
-    }
     /** Login, MQTT-Verbindung aufbauen und Telemetrie abonnieren. */
     async start() {
         this.stopped = false;
@@ -71,13 +55,13 @@ class EcoflowClient {
     async stop() {
         this.stopped = true;
         if (this.triggerTimer) {
-            this.stopTimer(this.triggerTimer);
+            this.options.clearInterval(this.triggerTimer);
             this.triggerTimer = null;
         }
         const client = this.client;
         this.client = null;
         if (client) {
-            await new Promise((resolve) => client.end(true, {}, () => resolve()));
+            await new Promise(resolve => client.end(true, {}, () => resolve()));
         }
         this.options.onConnectionChange(false);
     }
@@ -131,7 +115,7 @@ class EcoflowClient {
             this.reconnectCount = 0;
             this.options.log.info('MQTT connected');
             this.options.onConnectionChange(true);
-            client.subscribe(propertyTopic, (err) => {
+            client.subscribe(propertyTopic, err => {
                 if (err) {
                     this.options.log.error(`Subscribe failed: ${err.message}`);
                     return;
@@ -141,7 +125,7 @@ class EcoflowClient {
             });
         });
         client.on('message', (_topic, payload) => this.handleMessage(payload));
-        client.on('error', (err) => {
+        client.on('error', err => {
             this.options.log.error(`MQTT error: ${err.message}`);
         });
         client.on('close', () => {
@@ -158,9 +142,9 @@ class EcoflowClient {
             }
         });
         if (this.triggerTimer) {
-            this.stopTimer(this.triggerTimer);
+            this.options.clearInterval(this.triggerTimer);
         }
-        this.triggerTimer = this.startTimer(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
+        this.triggerTimer = this.options.setInterval(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
     }
     /** Verbindung verwerfen und mit frischen Zugangsdaten neu aufbauen. */
     async restart() {

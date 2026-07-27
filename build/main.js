@@ -67,19 +67,19 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             password,
             deviceSn,
             log: {
-                debug: (m) => this.log.debug(m),
-                info: (m) => this.log.info(m),
-                warn: (m) => this.log.warn(m),
-                error: (m) => this.log.error(m),
+                debug: m => this.log.debug(m),
+                info: m => this.log.info(m),
+                warn: m => this.log.warn(m),
+                error: m => this.log.error(m),
             },
-            onSnapshot: (snapshot) => void this.onSnapshot(snapshot),
-            onConnectionChange: (connected) => {
+            onSnapshot: snapshot => void this.onSnapshot(snapshot),
+            onConnectionChange: connected => {
                 void this.setStateAsync('info.connection', { val: connected, ack: true });
             },
             // Timer ueber den Adapter fuehren, damit der js-controller sie beim
             // Entladen mit abraeumt - sonst "Adapter did not stop".
             setInterval: (handler, ms) => this.setInterval(handler, ms),
-            clearInterval: (timer) => this.clearInterval(timer),
+            clearInterval: timer => this.clearInterval(timer),
         });
         try {
             await this.client.start();

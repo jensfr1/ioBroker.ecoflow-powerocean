@@ -86,7 +86,7 @@ const bytes = (f, n) => {
 };
 const xorDecrypt = (pdata, seq) => {
     const key = seq & 0xff;
-    return key === 0 ? pdata : pdata.map((b) => b ^ key);
+    return key === 0 ? pdata : pdata.map(b => b ^ key);
 };
 function decodePhase(raw) {
     const f = decodeFields(raw);
@@ -120,15 +120,9 @@ function decodeEmsHeartbeat(pdata) {
         frequencyHz = num(decodeFields(loadInfo), 3);
     }
     return {
-        pcsAPhase: f.get(12)
-            ? decodePhase(bytes(f, 12))
-            : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
-        pcsBPhase: f.get(13)
-            ? decodePhase(bytes(f, 13))
-            : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
-        pcsCPhase: f.get(14)
-            ? decodePhase(bytes(f, 14))
-            : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+        pcsAPhase: f.get(12) ? decodePhase(bytes(f, 12)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+        pcsBPhase: f.get(13) ? decodePhase(bytes(f, 13)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
+        pcsCPhase: f.get(14) ? decodePhase(bytes(f, 14)) : { vol: 0, amp: 0, actPwr: 0, reactPwr: 0, apparentPwr: 0 },
         frequencyHz,
         pvStrings,
         emsBpPower: num(f, 59),

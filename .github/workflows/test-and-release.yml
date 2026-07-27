@@ -8,19 +8,16 @@ on:
     branches: [main]
 
 jobs:
+  # Paket- und io-package-Konsistenz, wie es das ioBroker-Projekt vorgibt.
   check-and-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-check@v1
         with:
           node-version: 20.x
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm run lint
+          lint: true
 
-  unit-tests:
+  adapter-tests:
     needs: [check-and-lint]
     runs-on: ${{ matrix.os }}
     strategy:
@@ -38,19 +35,14 @@ jobs:
       - run: npm test
 
   deploy:
-    # Nur bei einem v*-Tag auf main veroeffentlichen.
+    # Nur bei einem v*-Tag veroeffentlichen.
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [check-and-lint, unit-tests]
+    needs: [check-and-lint, adapter-tests]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-deploy@v1
         with:
           node-version: 20.x
-          cache: npm
-          registry-url: https://registry.npmjs.org
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          build: true
+          npm-token: ${{ secrets.NPM_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

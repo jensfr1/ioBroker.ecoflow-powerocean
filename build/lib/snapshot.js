@@ -173,7 +173,7 @@ const PHASE_KEYS = ['a', 'b', 'c'];
  * damit einphasige Anlagen trotzdem eine Summe bekommen.
  */
 function sumPhases(s, key) {
-    const present = PHASE_KEYS.map((k) => s.phases[k]).filter((p) => p !== null);
+    const present = PHASE_KEYS.map(k => s.phases[k]).filter((p) => p !== null);
     if (present.length === 0) {
         return null;
     }
@@ -191,8 +191,8 @@ function sumPhases(s, key) {
  * Mittelwert eines Phasenwerts (sinnvoll fuer die Spannung, wo Summieren unsinnig waere).
  */
 function averagePhases(s, key) {
-    const present = PHASE_KEYS.map((k) => s.phases[k]).filter((p) => p !== null);
-    const values = present.map((p) => p[key]).filter((v) => v !== null);
+    const present = PHASE_KEYS.map(k => s.phases[k]).filter((p) => p !== null);
+    const values = present.map(p => p[key]).filter((v) => v !== null);
     if (values.length === 0 || values.length !== present.length) {
         return null;
     }

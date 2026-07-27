@@ -132,7 +132,9 @@ A GitHub star costs nothing and helps just as much.
 
 ## License
 
-MIT License — Copyright (c) 2026 Jens Franke
+MIT License
+
+Copyright (c) 2026 Jens Franke
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

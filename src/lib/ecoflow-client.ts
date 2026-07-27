@@ -28,32 +28,29 @@ const QUOTA_TRIGGER_MS = 60_000;
 const RECONNECTS_BEFORE_RELOGIN = 3;
 
 export interface ClientLogger {
-  debug(message: string): void;
-  info(message: string): void;
-  warn(message: string): void;
-  error(message: string): void;
+    debug(message: string): void;
+    info(message: string): void;
+    warn(message: string): void;
+    error(message: string): void;
 }
 
 export interface EcoflowClientOptions {
-  email: string;
-  password: string;
-  deviceSn: string;
-  log: ClientLogger;
-  /** Wird bei jedem verwertbaren Datenpaket aufgerufen. */
-  onSnapshot: (snapshot: Snapshot) => void;
-  /** Verbindungsstatus fuer info.connection. */
-  onConnectionChange: (connected: boolean) => void;
-  /**
-   * Timer-Funktionen des Adapters. ioBroker verlangt `adapter.setInterval`
-   * statt des globalen `setInterval`: Nur die vom Adapter verwalteten Timer
-   * raeumt der js-controller beim Entladen mit ab. Bleibt ein Timer stehen,
-   * meldet ioBroker "Adapter did not stop" und beendet den Prozess hart.
-   *
-   * Ohne Angabe greifen die globalen Funktionen - so laufen die Tests, die
-   * ohne Adapter-Instanz auskommen.
-   */
-  setInterval?: (handler: () => void, ms: number) => TimerHandle;
-  clearInterval?: (timer: TimerHandle) => void;
+    email: string;
+    password: string;
+    deviceSn: string;
+    log: ClientLogger;
+    /** Wird bei jedem verwertbaren Datenpaket aufgerufen. */
+    onSnapshot: (snapshot: Snapshot) => void;
+    /** Verbindungsstatus fuer info.connection. */
+    onConnectionChange: (connected: boolean) => void;
+    /**
+     * Timer-Funktionen des Adapters. ioBroker verlangt `adapter.setInterval`
+     * statt des globalen `setInterval`: Nur die vom Adapter verwalteten Timer
+     * raeumt der js-controller beim Entladen mit ab. Bleibt ein Timer stehen,
+     * meldet ioBroker "Adapter did not stop" und beendet den Prozess hart.
+     */
+    setInterval: (handler: () => void, ms: number) => TimerHandle;
+    clearInterval: (timer: TimerHandle) => void;
 }
 
 /**
@@ -64,229 +61,208 @@ export interface EcoflowClientOptions {
 export type TimerHandle = unknown;
 
 interface Session {
-  token: string;
-  userId: string;
+    token: string;
+    userId: string;
 }
 
 interface MqttCredentials {
-  url: string;
-  port: string;
-  protocol: string;
-  certificateAccount: string;
-  certificatePassword: string;
+    url: string;
+    port: string;
+    protocol: string;
+    certificateAccount: string;
+    certificatePassword: string;
 }
 
 export class EcoflowClient {
-  private client: MqttClient | null = null;
-  /** null = kein Timer aktiv (TimerHandle ist unknown, schliesst null ein). */
-  private triggerTimer: TimerHandle = null;
-  private snapshot: Snapshot | null = null;
-  private session: Session | null = null;
-  private reconnectCount = 0;
-  private stopped = false;
+    private client: MqttClient | null = null;
+    /** null = kein Timer aktiv (TimerHandle ist unknown, schliesst null ein). */
+    private triggerTimer: TimerHandle = null;
+    private snapshot: Snapshot | null = null;
+    private session: Session | null = null;
+    private reconnectCount = 0;
+    private stopped = false;
 
-  constructor(private readonly options: EcoflowClientOptions) {}
+    constructor(private readonly options: EcoflowClientOptions) {}
 
-  /**
-   * Timer ueber den Adapter anlegen, damit onUnload ihn sicher abraeumt.
-   */
-  private startTimer(handler: () => void, ms: number): TimerHandle {
-    return this.options.setInterval
-      ? this.options.setInterval(handler, ms)
-      : setInterval(handler, ms);
-  }
-
-  private stopTimer(timer: TimerHandle): void {
-    if (this.options.clearInterval) {
-      this.options.clearInterval(timer);
-    } else {
-      clearInterval(timer as NodeJS.Timeout);
+    /** Login, MQTT-Verbindung aufbauen und Telemetrie abonnieren. */
+    async start(): Promise<void> {
+        this.stopped = false;
+        await this.connect();
     }
-  }
 
-  /** Login, MQTT-Verbindung aufbauen und Telemetrie abonnieren. */
-  async start(): Promise<void> {
-    this.stopped = false;
-    await this.connect();
-  }
-
-  /**
-   * Alles sauber abbauen. Muss in onUnload aufgerufen werden, sonst laeuft der
-   * Trigger-Timer weiter und ioBroker meldet "Adapter did not stop".
-   */
-  async stop(): Promise<void> {
-    this.stopped = true;
-    if (this.triggerTimer) {
-      this.stopTimer(this.triggerTimer);
-      this.triggerTimer = null;
-    }
-    const client = this.client;
-    this.client = null;
-    if (client) {
-      await new Promise<void>((resolve) => client.end(true, {}, () => resolve()));
-    }
-    this.options.onConnectionChange(false);
-  }
-
-  // ── HTTP-Teil ──────────────────────────────────────────────────────────────
-
-  private async login(): Promise<Session> {
-    const response = await fetch(LOGIN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', lang: 'en_US' },
-      body: JSON.stringify({
-        email: this.options.email,
-        password: Buffer.from(this.options.password).toString('base64'),
-        scene: 'IOT_APP',
-        userType: 'ECOFLOW',
-      }),
-    });
-    const json = (await response.json()) as {
-      code: string;
-      message: string;
-      data?: {
-        token: string;
-        user: {
-          userId: string;
-        };
-      };
-    };
-    if (json.code !== '0' || !json.data) {
-      throw new Error(`Login failed: ${json.message} (code ${json.code})`);
-    }
-    return { token: json.data.token, userId: json.data.user.userId };
-  }
-
-  private async fetchMqttCredentials(session: Session): Promise<MqttCredentials> {
-    const response = await fetch(`${CERT_URL}?userId=${encodeURIComponent(session.userId)}`, {
-      headers: { authorization: `Bearer ${session.token}`, 'content-type': 'application/json' },
-    });
-    const json = (await response.json()) as {
-      code: string;
-      message: string;
-      data?: MqttCredentials;
-    };
-    if (json.code !== '0' || !json.data) {
-      throw new Error(`MQTT certification failed: ${json.message} (code ${json.code})`);
-    }
-    return json.data;
-  }
-
-  // ── MQTT-Teil ──────────────────────────────────────────────────────────────
-
-  private async connect(): Promise<void> {
-    const session = await this.login();
-    this.session = session;
-    const cert = await this.fetchMqttCredentials(session);
-    this.options.log.info(`Connecting to ${cert.url}:${cert.port}`);
-
-    // Der ANDROID_-Praefix ist noetig, sonst weist der Broker die Verbindung ab.
-    const clientId = `ANDROID_${randomUUID().replace(/-/g, '').toUpperCase()}_${session.userId}`;
-    const client = mqtt.connect(`${cert.protocol}://${cert.url}:${cert.port}`, {
-      username: cert.certificateAccount,
-      password: cert.certificatePassword,
-      clientId,
-      reconnectPeriod: 10_000,
-      clean: true,
-    });
-    this.client = client;
-
-    const propertyTopic = `/app/device/property/${this.options.deviceSn}`;
-    const getTopic = `/app/${session.userId}/${this.options.deviceSn}/thing/property/get`;
-
-    client.on('connect', () => {
-      this.reconnectCount = 0;
-      this.options.log.info('MQTT connected');
-      this.options.onConnectionChange(true);
-      client.subscribe(propertyTopic, (err) => {
-        if (err) {
-          this.options.log.error(`Subscribe failed: ${err.message}`);
-          return;
+    /**
+     * Alles sauber abbauen. Muss in onUnload aufgerufen werden, sonst laeuft der
+     * Trigger-Timer weiter und ioBroker meldet "Adapter did not stop".
+     */
+    async stop(): Promise<void> {
+        this.stopped = true;
+        if (this.triggerTimer) {
+            this.options.clearInterval(this.triggerTimer);
+            this.triggerTimer = null;
         }
-        this.options.log.debug(`Subscribed to ${propertyTopic}`);
-        this.requestLatestQuotas(getTopic);
-      });
-    });
-
-    client.on('message', (_topic, payload) => this.handleMessage(payload));
-
-    client.on('error', (err) => {
-      this.options.log.error(`MQTT error: ${err.message}`);
-    });
-
-    client.on('close', () => {
-      this.options.onConnectionChange(false);
-    });
-
-    // Nach mehreren erfolglosen Versuchen sind die Credentials vermutlich
-    // abgelaufen - dann komplett neu einloggen statt endlos zu reconnecten.
-    client.on('reconnect', () => {
-      this.reconnectCount++;
-      this.options.log.debug(`MQTT reconnect attempt ${this.reconnectCount}`);
-      if (this.reconnectCount >= RECONNECTS_BEFORE_RELOGIN && !this.stopped) {
-        this.options.log.warn('Repeated reconnects - refreshing credentials');
-        void this.restart();
-      }
-    });
-
-    if (this.triggerTimer) {
-      this.stopTimer(this.triggerTimer);
+        const client = this.client;
+        this.client = null;
+        if (client) {
+            await new Promise<void>(resolve => client.end(true, {}, () => resolve()));
+        }
+        this.options.onConnectionChange(false);
     }
-    this.triggerTimer = this.startTimer(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
-  }
 
-  /** Verbindung verwerfen und mit frischen Zugangsdaten neu aufbauen. */
-  private async restart(): Promise<void> {
-    const client = this.client;
-    this.client = null;
-    this.reconnectCount = 0;
-    if (client) {
-      client.end(true);
-    }
-    if (this.stopped) {
-      return;
-    }
-    try {
-      await this.connect();
-    } catch (error) {
-      this.options.log.error(
-        `Reconnect failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
+    // ── HTTP-Teil ──────────────────────────────────────────────────────────────
 
-  /**
-   * Weckruf: ohne diese Anfrage sendet das Geraet keine Telemetrie.
-   */
-  private requestLatestQuotas(topic: string): void {
-    if (!this.client?.connected) {
-      return;
+    private async login(): Promise<Session> {
+        const response = await fetch(LOGIN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', lang: 'en_US' },
+            body: JSON.stringify({
+                email: this.options.email,
+                password: Buffer.from(this.options.password).toString('base64'),
+                scene: 'IOT_APP',
+                userType: 'ECOFLOW',
+            }),
+        });
+        const json = (await response.json()) as {
+            code: string;
+            message: string;
+            data?: {
+                token: string;
+                user: {
+                    userId: string;
+                };
+            };
+        };
+        if (json.code !== '0' || !json.data) {
+            throw new Error(`Login failed: ${json.message} (code ${json.code})`);
+        }
+        return { token: json.data.token, userId: json.data.user.userId };
     }
-    this.client.publish(
-      topic,
-      JSON.stringify({
-        from: 'Android',
-        id: String(Math.floor(Math.random() * 1e9)),
-        moduleType: 0,
-        operateType: 'latestQuotas',
-        params: {},
-        version: '1.0',
-      }),
-    );
-  }
 
-  private handleMessage(payload: Buffer): void {
-    try {
-      const decoded = decodeMqttPayload(payload);
-      if (!hasPayload(decoded)) {
-        return;
-      }
-      this.snapshot = mergeSnapshot(this.options.deviceSn, this.snapshot, decoded);
-      this.options.onSnapshot(this.snapshot);
-    } catch (error) {
-      this.options.log.debug(
-        `Decode error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+    private async fetchMqttCredentials(session: Session): Promise<MqttCredentials> {
+        const response = await fetch(`${CERT_URL}?userId=${encodeURIComponent(session.userId)}`, {
+            headers: { authorization: `Bearer ${session.token}`, 'content-type': 'application/json' },
+        });
+        const json = (await response.json()) as {
+            code: string;
+            message: string;
+            data?: MqttCredentials;
+        };
+        if (json.code !== '0' || !json.data) {
+            throw new Error(`MQTT certification failed: ${json.message} (code ${json.code})`);
+        }
+        return json.data;
     }
-  }
+
+    // ── MQTT-Teil ──────────────────────────────────────────────────────────────
+
+    private async connect(): Promise<void> {
+        const session = await this.login();
+        this.session = session;
+        const cert = await this.fetchMqttCredentials(session);
+        this.options.log.info(`Connecting to ${cert.url}:${cert.port}`);
+
+        // Der ANDROID_-Praefix ist noetig, sonst weist der Broker die Verbindung ab.
+        const clientId = `ANDROID_${randomUUID().replace(/-/g, '').toUpperCase()}_${session.userId}`;
+        const client = mqtt.connect(`${cert.protocol}://${cert.url}:${cert.port}`, {
+            username: cert.certificateAccount,
+            password: cert.certificatePassword,
+            clientId,
+            reconnectPeriod: 10_000,
+            clean: true,
+        });
+        this.client = client;
+
+        const propertyTopic = `/app/device/property/${this.options.deviceSn}`;
+        const getTopic = `/app/${session.userId}/${this.options.deviceSn}/thing/property/get`;
+
+        client.on('connect', () => {
+            this.reconnectCount = 0;
+            this.options.log.info('MQTT connected');
+            this.options.onConnectionChange(true);
+            client.subscribe(propertyTopic, err => {
+                if (err) {
+                    this.options.log.error(`Subscribe failed: ${err.message}`);
+                    return;
+                }
+                this.options.log.debug(`Subscribed to ${propertyTopic}`);
+                this.requestLatestQuotas(getTopic);
+            });
+        });
+
+        client.on('message', (_topic, payload) => this.handleMessage(payload));
+
+        client.on('error', err => {
+            this.options.log.error(`MQTT error: ${err.message}`);
+        });
+
+        client.on('close', () => {
+            this.options.onConnectionChange(false);
+        });
+
+        // Nach mehreren erfolglosen Versuchen sind die Credentials vermutlich
+        // abgelaufen - dann komplett neu einloggen statt endlos zu reconnecten.
+        client.on('reconnect', () => {
+            this.reconnectCount++;
+            this.options.log.debug(`MQTT reconnect attempt ${this.reconnectCount}`);
+            if (this.reconnectCount >= RECONNECTS_BEFORE_RELOGIN && !this.stopped) {
+                this.options.log.warn('Repeated reconnects - refreshing credentials');
+                void this.restart();
+            }
+        });
+
+        if (this.triggerTimer) {
+            this.options.clearInterval(this.triggerTimer);
+        }
+        this.triggerTimer = this.options.setInterval(() => this.requestLatestQuotas(getTopic), QUOTA_TRIGGER_MS);
+    }
+
+    /** Verbindung verwerfen und mit frischen Zugangsdaten neu aufbauen. */
+    private async restart(): Promise<void> {
+        const client = this.client;
+        this.client = null;
+        this.reconnectCount = 0;
+        if (client) {
+            client.end(true);
+        }
+        if (this.stopped) {
+            return;
+        }
+        try {
+            await this.connect();
+        } catch (error) {
+            this.options.log.error(`Reconnect failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    /**
+     * Weckruf: ohne diese Anfrage sendet das Geraet keine Telemetrie.
+     */
+    private requestLatestQuotas(topic: string): void {
+        if (!this.client?.connected) {
+            return;
+        }
+        this.client.publish(
+            topic,
+            JSON.stringify({
+                from: 'Android',
+                id: String(Math.floor(Math.random() * 1e9)),
+                moduleType: 0,
+                operateType: 'latestQuotas',
+                params: {},
+                version: '1.0',
+            }),
+        );
+    }
+
+    private handleMessage(payload: Buffer): void {
+        try {
+            const decoded = decodeMqttPayload(payload);
+            if (!hasPayload(decoded)) {
+                return;
+            }
+            this.snapshot = mergeSnapshot(this.options.deviceSn, this.snapshot, decoded);
+            this.options.onSnapshot(this.snapshot);
+        } catch (error) {
+            this.options.log.debug(`Decode error: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
 }

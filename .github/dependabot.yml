@@ -4,8 +4,20 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 15
+    # Wartezeit nach einer Veroeffentlichung: Kompromittierte Pakete fallen
+    # meist innerhalb weniger Tage auf, bevor sie hier eingezogen werden.
+    cooldown:
+      default-days: 7
+    ignore:
+      # Die Node-Typen muessen zur unterstuetzten Laufzeit passen; ein
+      # Sprung auf die naechste Hauptversion erzeugt sonst falsche Typen.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
