@@ -118,6 +118,15 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.1.2
+
+- Grid power was read from the wrong field: `65.7` is a **setting**, not a
+  measurement. On a zero-feed-in system it reads 0, on one with a 10 kW export
+  limit it reads 10000 — constant either way. The real value is field `4.13`
+- House consumption is now derived from inverter output plus grid import
+  instead of `solar − battery + grid`, which is more accurate because
+  conversion losses are already included in the inverter value
+
 ### 0.1.1
 
 - Adapter now shuts down reliably: the keep-alive timer is managed by the

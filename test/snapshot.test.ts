@@ -228,8 +228,9 @@ describe('mergeSnapshot — mit echten aufgezeichneten Payloads', () => {
         expect(Math.round(s.pvPowerW!)).toBe(1127);
         expect(s.batterySoc).toBe(100);
         expect(s.batteryRemainingWh).toBe(10048);
-        // Nulleinspeisung: PV deckt die Last, nichts ins Netz
-        expect(s.gridPowerW).toBe(0);
+        // Ohne Wechselrichter-Block gibt es kein Feld 4.13 und damit keinen
+        // Netzwert; die Hauslast faellt auf die alte Bilanz zurueck.
+        expect(s.gridPowerW).toBeNull();
         expect(s.housePowerW).toBe(1127);
     });
 });
@@ -240,5 +241,29 @@ describe('hasPayload', () => {
     });
     it('erkennt Nachrichten mit Telemetrie', () => {
         expect(hasPayload(message({ po2Telemetry: telemetry({ pvPowerW: 1 }) }))).toBe(true);
+    });
+});
+
+describe('Netzleistung (Feld 4.13)', () => {
+    /*
+     * Aufgezeichnet am 27.07.2026 an der Referenzanlage. Der Frame enthaelt
+     * Block 4 mit Wechselrichter- und Netzwert, daran laesst sich die Hauslast
+     * gegenrechnen. Frueher wurde Feld 65.7 als Netzleistung gelesen - das ist
+     * eine Einstellung, keine Messung.
+     */
+    const GRID_HEX =
+        '0a93010a3a22380dec7e16431a210a111dc4524c42255284d5422df8b2ec4230010a0c1d8de86342251624d14230036d8051874072090a070802150281d2421060182020012801380340fe014827503a58017090eff90178fe01800104c2011052453131585858585858585858585858ca011052453131585858585858585858585858d2011052453131585858585858585858585858';
+
+    it('liest Netz- und Wechselrichterleistung', () => {
+        const t = decodeMqttPayload(Buffer.from(GRID_HEX, 'hex')).po2Telemetry!;
+        expect(t.gridPowerW).toBeCloseTo(4.2, 1);
+        expect(t.pcsTotalW).toBeCloseTo(150.5, 1);
+    });
+
+    it('leitet daraus die Hauslast ab', () => {
+        const msg = decodeMqttPayload(Buffer.from(GRID_HEX, 'hex'));
+        const s = mergeSnapshot(SN, null, msg);
+        // Wechselrichter 150,5 W + Netz 4,2 W
+        expect(s.housePowerW).toBe(155);
     });
 });

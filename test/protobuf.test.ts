@@ -28,9 +28,11 @@ describe('decodeMqttPayload — Systemzusammenfassung (Feld 65)', () => {
     it('liest PV, Netz, Batterie und SoC', () => {
         const t = msg.po2Telemetry!;
         expect(round(t.pvPowerW)).toBe(1127);
-        // Anlage mit Nulleinspeisung: Netz und Batterie stehen auf 0
-        expect(t.gridPowerW).toBe(0);
         expect(t.batteryPowerW).toBe(0);
+        // Diese Aufzeichnung hat keinen Wechselrichter-Block, also kein Feld
+        // 4.13 - und damit keinen Netzwert. Frueher stand hier 65.7 und lieferte
+        // 0; das sah plausibel aus, ist aber eine Einstellung, keine Messung.
+        expect(t.gridPowerW).toBeNull();
         expect(t.socPercent).toBe(100);
     });
 

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Grid power was read from the wrong field and stayed constant; now correct, house consumption is more accurate",
+        "de": "Netzleistung kam aus dem falschen Feld und blieb konstant; jetzt korrekt, Hausverbrauch genauer",
+        "ru": "Мощность сети считывалась из неверного поля и оставалась постоянной; теперь корректно, потребление дома точнее",
+        "pt": "A potência da rede vinha do campo errado e ficava constante; agora correta, consumo da casa mais preciso",
+        "nl": "Netvermogen kwam uit het verkeerde veld en bleef constant; nu correct, huisverbruik nauwkeuriger",
+        "fr": "La puissance réseau venait du mauvais champ et restait constante ; corrigée, consommation de la maison plus précise",
+        "it": "La potenza di rete veniva dal campo sbagliato e restava costante; ora corretta, consumo della casa più preciso",
+        "es": "La potencia de red venía del campo equivocado y quedaba constante; ahora correcta, consumo de la casa más preciso",
+        "pl": "Moc sieci pochodziła z błędnego pola i pozostawała stała; teraz poprawna, zużycie domu dokładniejsze",
+        "uk": "Потужність мережі зчитувалася з хибного поля й лишалася сталою; тепер коректно, споживання будинку точніше",
+        "zh-cn": "电网功率此前读取了错误字段并保持恒定；现已修正，家庭用电更准确"
+      },
       "0.1.1": {
         "en": "Adapter now shuts down reliably; installation from GitHub works; admin translated into eleven languages",
         "de": "Adapter beendet sich jetzt zuverlässig; Installation von GitHub funktioniert; Admin in elf Sprachen übersetzt",

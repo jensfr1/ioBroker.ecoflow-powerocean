@@ -290,7 +290,7 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
     if (summary instanceof Uint8Array) {
         const s = decodeFields(summary);
         result.pvPowerW = num(s, 4);
-        result.gridPowerW = num(s, 7);
+        // 65.7 war frueher als Netzleistung eingeordnet - falsch, siehe 4.13.
         result.socPercent = num(s, 17);
         result.remainingWh = num(s, 15);
         // 65.20 = Batterie-Betrag: exakt 0 = idle (Feld 7.4 fehlt dann in den anderen
@@ -321,6 +321,21 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         const p = decodeFields(pcs);
         if (p.has(1)) {
             result.pcsTotalW = num(p, 1);
+        }
+        /*
+         * 4.13 ist die Netzleistung (positiv = Bezug, negativ = Einspeisung).
+         *
+         * Nachgewiesen am 27.07.2026: Beim Laden der Batterie aus dem Netz
+         * stand hier 1719 W, waehrend der Wechselrichter (4.1) mit -1530 W zog
+         * und das Haus rund 190 W brauchte - die Summe geht auf. Mit dem Ende
+         * der Ladung fiel der Wert binnen Sekunden auf 0.
+         *
+         * Frueher stand hier Feld 65.7. Das ist eine Einstellung, keine
+         * Messung: An einer Anlage mit Nulleinspeisung steht es dauerhaft auf
+         * 0, an einer mit 10-kW-Begrenzung meldete es konstant 10000.
+         */
+        if (p.has(13)) {
+            result.gridPowerW = num(p, 13);
         }
         const phaseBlock = p.get(3)?.[0];
         if (phaseBlock instanceof Uint8Array) {

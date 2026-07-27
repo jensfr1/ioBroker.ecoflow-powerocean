@@ -122,6 +122,15 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.1.2
+
+- Die Netzleistung kam aus dem falschen Feld: `65.7` ist eine **Einstellung**,
+  keine Messung. Bei Nulleinspeisung steht dort 0, bei einer Anlage mit
+  10-kW-Begrenzung 10000 — beide Male konstant. Der echte Wert steht in `4.13`
+- Der Hausverbrauch ergibt sich jetzt aus Wechselrichter-Ausgang plus
+  Netzbezug statt aus `PV − Batterie + Netz`. Das ist genauer, weil die
+  Wandlungsverluste schon im Wechselrichterwert stecken
+
 ### 0.1.1
 
 - Adapter beendet sich zuverlässig: Der Weckruf-Timer läuft jetzt über den

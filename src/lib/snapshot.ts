@@ -115,11 +115,25 @@ function fullPhase(p: DecodedPhase): PhaseValues {
 }
 
 /**
- * Hauslast aus der Energiebilanz am Hausknoten.
- * Das Geraet liefert sie nicht direkt - der Wert ist berechnet:
- *   Last = PV - Batterie(+laden/-entladen) + Netz(+Bezug/-Einspeisung)
+ * Hauslast aus den beiden Quellen am Hausknoten.
+ *
+ * Das Geraet liefert sie nicht direkt. Am Hausknoten haengen aber genau zwei
+ * Quellen: der Wechselrichter (der PV und Batterie bereits verrechnet hat)
+ * und das Netz.
+ *
+ *   Last = Wechselrichter-Ausgang + Netzbezug
+ *
+ * Das ist genauer als der Umweg ueber PV minus Batterie plus Netz, weil die
+ * Wandlungsverluste schon im Wechselrichterwert stecken. Gegengeprueft am
+ * 27.07.2026: 150,5 + 4,2 = 155 W, das Geraet meldete im selben Moment
+ * ebenfalls 155 W. Beim Laden aus dem Netz: -1530 + 1719 = 189 W.
+ *
+ * Fehlt einer der beiden Werte, greift die alte Bilanz als Rueckfallebene.
  */
 export function computeHouseLoad(s: Snapshot): number | null {
+    if (s.inverterPowerW !== null && s.gridPowerW !== null) {
+        return Math.max(0, Math.round(s.inverterPowerW + s.gridPowerW));
+    }
     if (s.pvPowerW === null) {
         return null;
     }
