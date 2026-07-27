@@ -47,7 +47,9 @@
     "test": "vitest run",
     "test:package": "mocha test/package.test.js --exit",
     "prepublishOnly": "npm run build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:unit": "vitest run",
+    "test:integration": "mocha test/integration.js --exit"
   },
   "bugs": {
     "url": "https://github.com/jensfr1/ioBroker.ecoflow-powerocean/issues"
