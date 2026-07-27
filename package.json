@@ -31,7 +31,7 @@
     "@iobroker/testing": "^5.2.2",
     "@types/node": "^20.19.0",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
+    "vitest": "^4.1.10",
     "@iobroker/eslint-config": "^2.3.4"
   },
   "main": "build/main.js",
