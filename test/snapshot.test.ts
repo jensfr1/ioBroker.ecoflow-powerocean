@@ -263,7 +263,10 @@ describe('Netzleistung (Feld 4.13)', () => {
     it('leitet daraus die Hauslast ab', () => {
         const msg = decodeMqttPayload(Buffer.from(GRID_HEX, 'hex'));
         const s = mergeSnapshot(SN, null, msg);
-        // Wechselrichter 150,5 W + Netz 4,2 W
-        expect(s.housePowerW).toBe(155);
+        // Wechselrichter 150,5 W + Netz 4,2 W. Die 4,2 W fallen in die Totzone
+        // von 30 W, die auch EcoFlow anwendet - gerechnet wird also mit 0, macht
+        // gerundet 150 W.
+        expect(s.gridPowerW).toBe(0);
+        expect(s.housePowerW).toBe(150);
     });
 });

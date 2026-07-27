@@ -55,6 +55,18 @@ function fullPhase(p) {
     };
 }
 /**
+ * Totzone um null, wie sie EcoFlow selbst anwendet.
+ *
+ * Der Zaehler misst auch im Leerlauf ein paar Watt in die eine oder andere
+ * Richtung. Im Portal und in der App taucht das nie auf: Deren Verlaufsexport
+ * enthaelt ausschliesslich 0 oder Betraege ab 30 W. Ohne diese Schwelle steht
+ * im Objektbaum "7 W Bezug", waehrend die App daneben 0 W zeigt.
+ */
+const GRID_DEADBAND_W = 30;
+function applyGridDeadband(watt) {
+    return Math.abs(watt) < GRID_DEADBAND_W ? 0 : watt;
+}
+/**
  * Hauslast aus den beiden Quellen am Hausknoten.
  *
  * Das Geraet liefert sie nicht direkt. Am Hausknoten haengen aber genau zwei
@@ -134,7 +146,7 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
             s.pvPowerW = t.pvPowerW;
         }
         if (t.gridPowerW !== null) {
-            s.gridPowerW = t.gridPowerW;
+            s.gridPowerW = applyGridDeadband(t.gridPowerW);
         }
         if (t.batteryPowerW !== null) {
             s.batteryPowerW = t.batteryPowerW;

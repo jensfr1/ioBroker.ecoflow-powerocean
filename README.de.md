@@ -124,6 +124,11 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.1.3
+
+- Die Netzleistung nutzt jetzt dieselbe Totzone von 30 W wie die
+  EcoFlow-App, damit beide Anzeigen im Leerlauf übereinstimmen
+
 ### 0.1.2
 
 - Die Netzleistung kam aus dem falschen Feld: `65.7` ist eine **Einstellung**,

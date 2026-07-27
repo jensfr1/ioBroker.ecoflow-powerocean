@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "news": {
+      "0.1.3": {
+        "en": "Grid power now uses the same 30 W deadband as the EcoFlow app",
+        "de": "Netzleistung nutzt jetzt dieselbe 30-W-Totzone wie die EcoFlow-App",
+        "ru": "Мощность сети теперь использует ту же зону нечувствительности 30 Вт, что и приложение EcoFlow",
+        "pt": "A potência da rede usa agora a mesma zona morta de 30 W da aplicação EcoFlow",
+        "nl": "Netvermogen gebruikt nu dezelfde dode zone van 30 W als de EcoFlow-app",
+        "fr": "La puissance réseau utilise désormais la même zone morte de 30 W que l'application EcoFlow",
+        "it": "La potenza di rete usa ora la stessa zona morta di 30 W dell'app EcoFlow",
+        "es": "La potencia de red usa ahora la misma zona muerta de 30 W que la aplicación EcoFlow",
+        "pl": "Moc sieci używa teraz tej samej strefy nieczułości 30 W co aplikacja EcoFlow",
+        "uk": "Потужність мережі тепер використовує ту саму зону нечутливості 30 Вт, що й застосунок EcoFlow",
+        "zh-cn": "电网功率现在采用与 EcoFlow 应用相同的 30 W 死区"
+      },
       "0.1.2": {
         "en": "Grid power was read from the wrong field and stayed constant; now correct, house consumption is more accurate",
         "de": "Netzleistung kam aus dem falschen Feld und blieb konstant; jetzt korrekt, Hausverbrauch genauer",

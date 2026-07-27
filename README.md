@@ -120,6 +120,11 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.1.3
+
+- Grid power now uses the same 30 W deadband as the EcoFlow app, so both
+  displays agree when the meter idles around zero
+
 ### 0.1.2
 
 - Grid power was read from the wrong field: `65.7` is a **setting**, not a
