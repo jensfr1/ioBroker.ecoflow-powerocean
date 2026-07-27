@@ -32,6 +32,7 @@ jobs:
 
   # Tests auf allen unterstuetzten Node-Versionen und Betriebssystemen
   adapter-tests:
+    needs: [check-and-lint]
     if: contains(github.event.head_commit.message, '[skip ci]') == false
 
     runs-on: ${{ matrix.os }}
