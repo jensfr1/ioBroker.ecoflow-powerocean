@@ -41,6 +41,7 @@ export const CHANNELS: ChannelDef[] = [
     { id: 'grid', name: { en: 'Grid', de: 'Netz' } },
     { id: 'house', name: { en: 'House', de: 'Haus' } },
     { id: 'inverter', name: { en: 'Inverter', de: 'Wechselrichter' } },
+    { id: 'energy', name: { en: 'Energy counters', de: 'Energiezähler' } },
     { id: 'phases', name: { en: 'Phases', de: 'Phasen' } },
 ];
 
@@ -230,6 +231,60 @@ export const PACK_STATES: Array<Omit<StateDef, 'id'> & { key: string }> = [
         name: { en: 'Serial number', de: 'Seriennummer' },
         type: 'string',
         role: 'info.serial',
+    },
+];
+
+/**
+ * Energiezaehler in Wh.
+ *
+ * Das Geraet liefert nur Momentanleistung; diese Staende entstehen durch
+ * Integration ueber die Zeit (siehe energy.ts). Sie laufen monoton nach oben
+ * und werden ueber einen Adapterneustart hinweg fortgesetzt - Rolle und
+ * Einheit sind so gewaehlt, dass History-Adapter und Auswertungen sie als
+ * Zaehler erkennen.
+ */
+export const ENERGY_STATES: StateDef[] = [
+    {
+        id: 'energy.gridImported',
+        name: { en: 'Grid consumption', de: 'Netzbezug' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.gridExported',
+        name: { en: 'Grid return', de: 'Netzeinspeisung' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.pvProduced',
+        name: { en: 'Solar production', de: 'Solarerzeugung' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.batteryCharged',
+        name: { en: 'Battery charged', de: 'Batterie geladen' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.batteryDischarged',
+        name: { en: 'Battery discharged', de: 'Batterie entladen' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.houseConsumed',
+        name: { en: 'House consumption', de: 'Hausverbrauch' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
     },
 ];
 

@@ -42,12 +42,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(require("@iobroker/adapter-core"));
 const ecoflow_client_1 = require("./lib/ecoflow-client");
 const snapshot_1 = require("./lib/snapshot");
+const energy_1 = require("./lib/energy");
 const objects_1 = require("./lib/objects");
 class EcoflowPowerOceanAdapter extends utils.Adapter {
     client = null;
     lastWrite = 0;
     /** Bereits angelegte dynamische Objekte (PV-Strings, Batterie-Module). */
     createdObjects = new Set();
+    /**
+     * Energiezaehler je State-ID. Das Geraet liefert nur Leistung; die kWh
+     * entstehen durch Integration ueber die Zeit.
+     */
+    energy = new Map();
     constructor(options = {}) {
         super({ ...options, name: 'ecoflow-powerocean' });
         this.on('ready', this.onReady.bind(this));
@@ -62,6 +68,7 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
         await this.setStateAsync('info.connection', { val: false, ack: true });
         await this.createStaticObjects();
         await this.setStateAsync('device.sn', { val: deviceSn, ack: true });
+        await this.restoreEnergyCounters();
         this.client = new ecoflow_client_1.EcoflowClient({
             email,
             password,
@@ -111,6 +118,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             });
         }
         for (const state of objects_1.STATES) {
+            await this.defineState(state);
+        }
+        for (const state of objects_1.ENERGY_STATES) {
             await this.defineState(state);
         }
         for (const phase of objects_1.PHASE_KEYS) {
@@ -171,6 +181,42 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             await this.defineState({ ...def, id: `${channelId}.${def.key}` });
         }
     }
+    /**
+     * Zaehlerstaende aus dem Objektbaum uebernehmen.
+     *
+     * Ohne diesen Schritt faengt jeder Adapterstart bei 0 an, und jede
+     * History sieht einen Sprung nach unten. Der Zeitbezug wird bewusst NICHT
+     * wiederhergestellt - die Zeit seit dem letzten Wert ist eine Luecke.
+     */
+    async restoreEnergyCounters() {
+        for (const def of objects_1.ENERGY_STATES) {
+            const integrator = new energy_1.EnergyIntegrator();
+            const state = await this.getStateAsync(def.id);
+            if (state && typeof state.val === 'number') {
+                integrator.restore(state.val);
+            }
+            this.energy.set(def.id, integrator);
+        }
+    }
+    /** Leistungswerte auf die Zaehler geben und die neuen Staende schreiben. */
+    async updateEnergyCounters(s, now) {
+        const werte = [
+            ['energy.gridImported', (0, energy_1.positivePart)(s.gridPowerW)],
+            ['energy.gridExported', (0, energy_1.negativePart)(s.gridPowerW)],
+            ['energy.pvProduced', s.pvPowerW],
+            ['energy.batteryCharged', (0, energy_1.positivePart)(s.batteryPowerW)],
+            ['energy.batteryDischarged', (0, energy_1.negativePart)(s.batteryPowerW)],
+            ['energy.houseConsumed', s.housePowerW],
+        ];
+        for (const [id, leistung] of werte) {
+            const integrator = this.energy.get(id);
+            if (!integrator) {
+                continue;
+            }
+            const total = integrator.add(leistung, now);
+            await this.setStateAsync(id, { val: Math.round(total * 1000) / 1000, ack: true });
+        }
+    }
     // ── Datenuebernahme ────────────────────────────────────────────────────────
     async onSnapshot(snapshot) {
         // Das Geraet sendet ca. alle 2 s - so oft muessen die States nicht schreiben.
@@ -194,6 +240,7 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             }
             await this.setStateAsync(id, { val: value, ack: true });
         };
+        await this.updateEnergyCounters(s, s.updatedAt);
         await set('info.lastUpdate', s.updatedAt);
         await set('pv.power', round(s.pvPowerW));
         await set('battery.soc', round(s.batterySoc, 1));

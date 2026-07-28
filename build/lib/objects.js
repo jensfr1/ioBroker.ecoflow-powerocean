@@ -8,7 +8,7 @@
  *   grid.power     positiv = Bezug,  negativ = Einspeisung
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PHASE_TOTAL_STATES = exports.PHASE_KEYS = exports.PACK_STATES = exports.PHASE_STATES = exports.STATES = exports.CHANNELS = void 0;
+exports.PHASE_TOTAL_STATES = exports.PHASE_KEYS = exports.ENERGY_STATES = exports.PACK_STATES = exports.PHASE_STATES = exports.STATES = exports.CHANNELS = void 0;
 exports.CHANNELS = [
     { id: 'device', name: { en: 'Device', de: 'Gerät' } },
     { id: 'pv', name: { en: 'Photovoltaics', de: 'Photovoltaik' } },
@@ -18,6 +18,7 @@ exports.CHANNELS = [
     { id: 'grid', name: { en: 'Grid', de: 'Netz' } },
     { id: 'house', name: { en: 'House', de: 'Haus' } },
     { id: 'inverter', name: { en: 'Inverter', de: 'Wechselrichter' } },
+    { id: 'energy', name: { en: 'Energy counters', de: 'Energiezähler' } },
     { id: 'phases', name: { en: 'Phases', de: 'Phasen' } },
 ];
 exports.STATES = [
@@ -204,6 +205,59 @@ exports.PACK_STATES = [
         name: { en: 'Serial number', de: 'Seriennummer' },
         type: 'string',
         role: 'info.serial',
+    },
+];
+/**
+ * Energiezaehler in Wh.
+ *
+ * Das Geraet liefert nur Momentanleistung; diese Staende entstehen durch
+ * Integration ueber die Zeit (siehe energy.ts). Sie laufen monoton nach oben
+ * und werden ueber einen Adapterneustart hinweg fortgesetzt - Rolle und
+ * Einheit sind so gewaehlt, dass History-Adapter und Auswertungen sie als
+ * Zaehler erkennen.
+ */
+exports.ENERGY_STATES = [
+    {
+        id: 'energy.gridImported',
+        name: { en: 'Grid consumption', de: 'Netzbezug' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.gridExported',
+        name: { en: 'Grid return', de: 'Netzeinspeisung' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.pvProduced',
+        name: { en: 'Solar production', de: 'Solarerzeugung' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.batteryCharged',
+        name: { en: 'Battery charged', de: 'Batterie geladen' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.batteryDischarged',
+        name: { en: 'Battery discharged', de: 'Batterie entladen' },
+        type: 'number',
+        role: 'value.energy.produced',
+        unit: 'Wh',
+    },
+    {
+        id: 'energy.houseConsumed',
+        name: { en: 'House consumption', de: 'Hausverbrauch' },
+        type: 'number',
+        role: 'value.energy.consumed',
+        unit: 'Wh',
     },
 ];
 exports.PHASE_KEYS = ['a', 'b', 'c'];

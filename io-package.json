@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "news": {
+      "0.3.0": {
+        "en": "Energy counters in Wh: grid import/export, solar, battery charged/discharged, house — restart-proof",
+        "de": "Energiezähler in Wh: Netzbezug/-einspeisung, Solar, Batterie geladen/entladen, Haus — neustartfest",
+        "ru": "Счётчики энергии в Вт·ч: сеть, солнце, батарея, дом — переживают перезапуск",
+        "pt": "Contadores de energia em Wh: rede, solar, bateria, casa — resistentes a reinício",
+        "nl": "Energietellers in Wh: net, zon, accu, huis — bestand tegen herstart",
+        "fr": "Compteurs d'énergie en Wh : réseau, solaire, batterie, maison — conservés au redémarrage",
+        "it": "Contatori di energia in Wh: rete, solare, batteria, casa — resistenti al riavvio",
+        "es": "Contadores de energía en Wh: red, solar, batería, casa — resisten reinicios",
+        "pl": "Liczniki energii w Wh: sieć, słońce, akumulator, dom — odporne na restart",
+        "uk": "Лічильники енергії у Вт·год: мережа, сонце, акумулятор, будинок — переживають перезапуск",
+        "zh-cn": "以 Wh 为单位的电量计数器：电网、光伏、电池、家庭——重启后继续累计"
+      },
       "0.2.0": {
         "en": "Battery modules now also report power, state of health and charge cycles",
         "de": "Batteriemodule melden jetzt auch Leistung, Alterungszustand und Ladezyklen",

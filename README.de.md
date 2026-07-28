@@ -93,6 +93,12 @@ ecoflow-powerocean.0
 ├── grid.power                 W    positiv = Bezug, negativ = Einspeisung
 ├── house.power                W    berechnet, siehe unten
 ├── inverter.power             W    AC-Ausgang des Wechselrichters
+├── energy.gridImported        Wh   Zählerstände, neustartfest
+├── energy.gridExported        Wh
+├── energy.pvProduced          Wh
+├── energy.batteryCharged      Wh
+├── energy.batteryDischarged   Wh
+├── energy.houseConsumed       Wh
 └── phases.<a|b|c>.*           V / A / W / var / VA
 ```
 
@@ -123,6 +129,13 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 ```
 
 ## Changelog
+
+### 0.3.0
+
+- **Energiezähler** unter `energy.*` in Wh: Netzbezug und -einspeisung,
+  Solarerzeugung, Batterie geladen und entladen, Hausverbrauch. Sie überstehen
+  einen Adapterneustart und rechnen Verbindungslücken bewusst **nicht** hoch —
+  es wird keine Energie erfunden, die nie geflossen ist
 
 ### 0.2.0
 

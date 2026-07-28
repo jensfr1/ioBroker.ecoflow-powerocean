@@ -89,6 +89,12 @@ ecoflow-powerocean.0
 ├── grid.power                 W    positive = import, negative = export
 ├── house.power                W    calculated, see below
 ├── inverter.power             W    inverter AC output
+├── energy.gridImported        Wh   cumulative counters, restart-proof
+├── energy.gridExported        Wh
+├── energy.pvProduced          Wh
+├── energy.batteryCharged      Wh
+├── energy.batteryDischarged   Wh
+├── energy.houseConsumed       Wh
 └── phases.<a|b|c>.*           V / A / W / var / VA
 ```
 
@@ -119,6 +125,13 @@ npx tsx test/live-check.ts <email> <password> <serial>
 ```
 
 ## Changelog
+
+### 0.3.0
+
+- **Energy counters** under `energy.*` in Wh: grid consumption and return,
+  solar production, battery charged and discharged, house consumption. They
+  survive an adapter restart and deliberately do **not** extrapolate across
+  connection gaps — no energy is invented that never flowed
 
 ### 0.2.0
 
