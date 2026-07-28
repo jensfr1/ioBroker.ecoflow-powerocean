@@ -165,6 +165,12 @@ export interface DecodedPo2BatteryPack {
     fullCapacityWh: number;
     tempC: number;
     voltageV: number;
+    /** Modul-Leistung in W: positiv = laden, negativ = entladen. */
+    powerW: number;
+    /** Alterungszustand in %. */
+    sohPercent: number;
+    /** Bisherige Vollzyklen. */
+    cycles: number;
 }
 
 export interface DecodedMessage {
@@ -405,6 +411,12 @@ function decodePo2BatteryPack(pdata: Uint8Array): DecodedPo2BatteryPack | null {
         fullCapacityWh: num(p, 54),
         tempC: num(p, 21),
         voltageV: num(p, 6) / 10,
+        // 1/3/17 tragen dieselbe Bedeutung wie bei der aelteren Generation -
+        // geprueft am 28.07.2026: 1122,59 W / 100 % / 4 Zyklen an einem vier
+        // Wochen alten System.
+        powerW: num(p, 1),
+        sohPercent: num(p, 3),
+        cycles: num(p, 17),
     };
 }
 

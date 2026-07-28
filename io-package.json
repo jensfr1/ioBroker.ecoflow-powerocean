@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "news": {
+      "0.2.0": {
+        "en": "Battery modules now also report power, state of health and charge cycles",
+        "de": "Batteriemodule melden jetzt auch Leistung, Alterungszustand und Ladezyklen",
+        "ru": "Батарейные модули теперь также сообщают мощность, состояние здоровья и циклы заряда",
+        "pt": "Os módulos de bateria reportam agora também potência, estado de saúde e ciclos de carga",
+        "nl": "Accumodules melden nu ook vermogen, gezondheidstoestand en laadcycli",
+        "fr": "Les modules de batterie indiquent désormais aussi la puissance, l'état de santé et les cycles de charge",
+        "it": "I moduli batteria riportano ora anche potenza, stato di salute e cicli di carica",
+        "es": "Los módulos de batería informan ahora también potencia, estado de salud y ciclos de carga",
+        "pl": "Moduły akumulatora raportują teraz także moc, stan zdrowia i cykle ładowania",
+        "uk": "Батарейні модулі тепер також повідомляють потужність, стан здоров’я та цикли заряду",
+        "zh-cn": "电池模块现在还会报告功率、健康状态和充电循环次数"
+      },
       "0.1.3": {
         "en": "Grid power now uses the same 30 W deadband as the EcoFlow app",
         "de": "Netzleistung nutzt jetzt dieselbe 30-W-Totzone wie die EcoFlow-App",

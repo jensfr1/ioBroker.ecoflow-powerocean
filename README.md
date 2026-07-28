@@ -120,6 +120,12 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.2.0
+
+- Battery modules now also report **power**, **state of health** and **charge
+  cycles**. The device was sending these all along — they were only read for
+  the older generation
+
 ### 0.1.3
 
 - Grid power now uses the same 30 W deadband as the EcoFlow app, so both

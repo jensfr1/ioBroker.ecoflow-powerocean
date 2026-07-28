@@ -137,6 +137,9 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
             temperature: pack.tempEnv,
             voltage: pack.vol,
             capacityWh: pack.remainWh,
+            powerW: pack.pwr,
+            sohPercent: pack.soh,
+            cycles: pack.cycles,
         });
     }
     // ── Neue Generation (cmdFunc 254) ──────────────────────────────────────────
@@ -181,6 +184,9 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
             temperature: pack.tempC,
             voltage: pack.voltageV,
             capacityWh: pack.fullCapacityWh,
+            powerW: pack.powerW,
+            sohPercent: pack.sohPercent,
+            cycles: pack.cycles,
         });
     }
     // Hauslast nur berechnen, wenn sie nicht schon gemessen vorliegt

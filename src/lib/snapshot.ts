@@ -32,6 +32,12 @@ export interface BatteryPack {
     temperature: number;
     voltage: number;
     capacityWh: number;
+    /** Modul-Leistung in W: positiv = laden, negativ = entladen. */
+    powerW: number | null;
+    /** Alterungszustand in %. */
+    sohPercent: number | null;
+    /** Bisherige Vollzyklen. */
+    cycles: number | null;
 }
 
 export interface Snapshot {
@@ -201,6 +207,9 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             temperature: pack.tempEnv,
             voltage: pack.vol,
             capacityWh: pack.remainWh,
+            powerW: pack.pwr,
+            sohPercent: pack.soh,
+            cycles: pack.cycles,
         });
     }
 
@@ -247,6 +256,9 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             temperature: pack.tempC,
             voltage: pack.voltageV,
             capacityWh: pack.fullCapacityWh,
+            powerW: pack.powerW,
+            sohPercent: pack.sohPercent,
+            cycles: pack.cycles,
         });
     }
 

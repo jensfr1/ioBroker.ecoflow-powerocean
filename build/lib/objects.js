@@ -174,6 +174,32 @@ exports.PACK_STATES = [
         unit: 'Wh',
     },
     {
+        key: 'power',
+        name: { en: 'Power', de: 'Leistung' },
+        desc: {
+            en: 'Positive = charging, negative = discharging',
+            de: 'Positiv = laden, negativ = entladen',
+        },
+        type: 'number',
+        role: 'value.power',
+        unit: 'W',
+    },
+    {
+        key: 'soh',
+        name: { en: 'State of health', de: 'Alterungszustand' },
+        type: 'number',
+        role: 'value.battery',
+        unit: '%',
+        min: 0,
+        max: 100,
+    },
+    {
+        key: 'cycles',
+        name: { en: 'Charge cycles', de: 'Ladezyklen' },
+        type: 'number',
+        role: 'value',
+    },
+    {
         key: 'sn',
         name: { en: 'Serial number', de: 'Seriennummer' },
         type: 'string',

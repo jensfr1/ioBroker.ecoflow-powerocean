@@ -235,6 +235,9 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             await set(`${channelId}.temperature`, round(pack.temperature, 1));
             await set(`${channelId}.voltage`, round(pack.voltage, 1));
             await set(`${channelId}.capacityWh`, round(pack.capacityWh));
+            await set(`${channelId}.power`, round(pack.powerW));
+            await set(`${channelId}.soh`, round(pack.sohPercent, 1));
+            await set(`${channelId}.cycles`, round(pack.cycles));
             await set(`${channelId}.sn`, pack.sn);
         }
     }

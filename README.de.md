@@ -124,6 +124,12 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.2.0
+
+- Batteriemodule melden jetzt auch **Leistung**, **Alterungszustand** und
+  **Ladezyklen**. Das Gerät sendet diese Werte längst — sie wurden nur für die
+  ältere Generation ausgelesen
+
 ### 0.1.3
 
 - Die Netzleistung nutzt jetzt dieselbe Totzone von 30 W wie die
