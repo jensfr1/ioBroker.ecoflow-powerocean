@@ -130,6 +130,17 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.3.1
+
+- **Der Hausverbrauch kommt jetzt vom Gerät statt aus einer Rechnung.** Das
+  Gerät meldet ihn direkt — im selben Moment wie Solar, Batterie und Netz und
+  mit ihnen bilanziert. Die bisherige Rechnung (Wechselrichter plus Netz) lag
+  systematisch zu niedrig, weil diese beiden Felder unabhängig voneinander
+  aktualisiert werden und damit aus verschiedenen Momenten stammen: 2018 W
+  gerechnet gegen 2100 W gemeldet an einer Anlage, 306 W gegen 490 W an einer
+  anderen. Damit stimmt auch der Zähler `energy.houseConsumed` und jede daraus
+  abgeleitete Autarkiequote
+
 ### 0.3.0
 
 - **Energiezähler** unter `energy.*` in Wh: Netzbezug und -einspeisung,

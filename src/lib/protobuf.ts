@@ -144,7 +144,9 @@ export interface DecodedEnergyStream {
 export interface DecodedPo2Telemetry {
     pvPowerW: number | null;
     gridPowerW: number | null;
-    /** Vorlaeufig Feld 65.7 — bei aktiver Batterie verifizieren. */
+    /** Hauslast, wie das Geraet sie selbst meldet (Feld 7.1/87.1). */
+    housePowerW: number | null;
+    /** Signierte Batterieleistung aus Feld 7.4: positiv = Laden. */
     batteryPowerW: number | null;
     socPercent: number | null;
     remainingWh: number | null;
@@ -281,6 +283,7 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
     const result: DecodedPo2Telemetry = {
         pvPowerW: null,
         gridPowerW: null,
+        housePowerW: null,
         batteryPowerW: null,
         socPercent: null,
         remainingWh: null,
@@ -306,14 +309,41 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         }
     }
 
-    // Feld 7 (bzw. 87) = Erzeugungs-Zusammenfassung: 1=Gesamt, 3=PV,
-    // 4=Batterieleistung (signiert: negativ = Entladen, positiv = Laden)
-    const gen = f.get(7)?.[0] ?? f.get(87)?.[0];
-    if (gen instanceof Uint8Array) {
+    /*
+     * Feld 7 (bzw. 87) = Energiefluss-Zusammenfassung, so wie die App sie zeigt:
+     * 1=Hauslast, 2=Netz, 3=PV, 4=Batterie (signiert: positiv = Laden).
+     *
+     * Dieser Block ist in sich bilanziert - PV minus Batterie minus Netz ergibt
+     * exakt die Hauslast, und alle vier Werte stammen aus demselben Moment. Das
+     * unterscheidet ihn von Block 4, dessen Felder einzeln und zu verschiedenen
+     * Zeitpunkten aktualisiert werden.
+     *
+     * Beide Bloecke koennen gleichzeitig auftreten und weichen dann leicht
+     * voneinander ab - Block 7 hinkt offenbar einen Messzyklus hinterher, und
+     * ihm fehlt haeufiger ein Feld. Deshalb feldweise zusammenfuehren, wobei 87
+     * gewinnt: Im Log vom 28.07.2026 meldete Block 7 eine Hauslast von 550 W
+     * und Block 87 gleichzeitig 560 W - die App zeigte 560 W.
+     */
+    // Block 65 bleibt erste Wahl fuer die PV-Leistung; nur wenn er nichts
+    // geliefert hat, springt Block 7/87 ein.
+    const pvAusSummary = result.pvPowerW !== null && result.pvPowerW !== 0;
+    for (const blockNr of [7, 87]) {
+        const gen = f.get(blockNr)?.[0];
+        if (!(gen instanceof Uint8Array)) {
+            continue;
+        }
         const g = decodeFields(gen);
         // Nur setzen, wenn das Feld wirklich vorhanden ist — sonst wuerde ein
         // fehlendes Feld den guten Wert mit 0 ueberschreiben.
-        if ((result.pvPowerW === null || result.pvPowerW === 0) && g.has(3)) {
+        if (g.has(1)) {
+            result.housePowerW = num(g, 1);
+        }
+        // Vorlaeufig; Feld 4.13 hat Vorrang, weil es feiner aufgeloest ist und
+        // in nahezu jeder Nachricht steckt.
+        if (g.has(2)) {
+            result.gridPowerW = num(g, 2);
+        }
+        if (!pvAusSummary && g.has(3)) {
             result.pvPowerW = num(g, 3);
         }
         if (g.has(4)) {

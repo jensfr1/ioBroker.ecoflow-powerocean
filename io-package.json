@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "news": {
+      "0.3.1": {
+        "en": "House consumption now read from the device instead of calculated — the old formula came out systematically low",
+        "de": "Hausverbrauch kommt jetzt vom Gerät statt aus einer Rechnung — die alte Formel lag systematisch zu niedrig",
+        "ru": "Потребление дома теперь берётся с устройства, а не вычисляется — старая формула занижала значение",
+        "pt": "O consumo da casa vem agora do dispositivo em vez de ser calculado — a fórmula antiga ficava baixa",
+        "nl": "Huisverbruik komt nu van het apparaat in plaats van berekend — de oude formule lag te laag",
+        "fr": "La consommation de la maison vient désormais de l'appareil au lieu d'être calculée — l'ancienne formule sous-estimait",
+        "it": "Il consumo della casa ora arriva dal dispositivo invece di essere calcolato — la vecchia formula era troppo bassa",
+        "es": "El consumo de la casa ahora viene del dispositivo en vez de calcularse — la fórmula anterior quedaba baja",
+        "pl": "Zużycie domu pochodzi teraz z urządzenia zamiast z obliczeń — stary wzór zaniżał wartość",
+        "uk": "Споживання будинку тепер надходить із пристрою, а не обчислюється — стара формула занижувала",
+        "zh-cn": "家庭用电量现由设备直接上报，不再计算——旧公式系统性偏低"
+      },
       "0.3.0": {
         "en": "Energy counters in Wh: grid import/export, solar, battery charged/discharged, house — restart-proof",
         "de": "Energiezähler in Wh: Netzbezug/-einspeisung, Solar, Batterie geladen/entladen, Haus — neustartfest",

@@ -17,6 +17,7 @@ function emptySnapshot(sn) {
         gridPowerW: null,
         inverterPowerW: null,
         housePowerW: null,
+        housePowerMeasured: false,
         phases: { a: null, b: null, c: null },
         pvStrings: new Map(),
         batteryPacks: new Map(),
@@ -67,20 +68,20 @@ function applyGridDeadband(watt) {
     return Math.abs(watt) < GRID_DEADBAND_W ? 0 : watt;
 }
 /**
- * Hauslast aus den beiden Quellen am Hausknoten.
+ * Hauslast berechnen - nur als Rueckfallebene.
  *
- * Das Geraet liefert sie nicht direkt. Am Hausknoten haengen aber genau zwei
- * Quellen: der Wechselrichter (der PV und Batterie bereits verrechnet hat)
- * und das Netz.
+ * Das Geraet meldet die Hauslast selbst (Feld 7.1/87.1), und dieser Wert ist
+ * dem hier berechneten vorzuziehen: Er stammt aus demselben Moment wie PV,
+ * Batterie und Netz und bilanziert exakt mit ihnen.
  *
- *   Last = Wechselrichter-Ausgang + Netzbezug
+ * Die Rechnung hier addiert die beiden Quellen am Hausknoten - den
+ * Wechselrichter-Ausgang und den Netzbezug. Sie liegt systematisch zu niedrig,
+ * weil die Felder 4.1 und 4.13 unabhaengig voneinander aktualisiert werden und
+ * damit aus verschiedenen Momenten stammen. Am 29.07.2026 standen so 2018 W
+ * gerechnet gegen 2100 W gemeldet, im Log einer anderen Anlage 306 W gegen
+ * 490 W.
  *
- * Das ist genauer als der Umweg ueber PV minus Batterie plus Netz, weil die
- * Wandlungsverluste schon im Wechselrichterwert stecken. Gegengeprueft am
- * 27.07.2026: 150,5 + 4,2 = 155 W, das Geraet meldete im selben Moment
- * ebenfalls 155 W. Beim Laden aus dem Netz: -1530 + 1719 = 189 W.
- *
- * Fehlt einer der beiden Werte, greift die alte Bilanz als Rueckfallebene.
+ * Fehlt auch der Wechselrichterwert, greift die Bilanz PV - Batterie + Netz.
  */
 function computeHouseLoad(s) {
     if (s.inverterPowerW !== null && s.gridPowerW !== null) {
@@ -105,6 +106,13 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
         pvStrings: new Map(base.pvStrings),
         batteryPacks: new Map(base.batteryPacks),
     };
+    /*
+     * Sobald das Geraet die Hauslast einmal selbst gemeldet hat, wird sie nie
+     * wieder gerechnet. Sonst wuerde jede Nachricht ohne dieses Feld den guten
+     * Wert durch den zu niedrigen ersetzen, und die Anzeige springt im
+     * Sekundentakt hin und her.
+     */
+    let hauslastGemessen = base.housePowerMeasured;
     // ── Aeltere Generation (cmdFunc 96) ────────────────────────────────────────
     if (msg.energyStream) {
         const es = msg.energyStream;
@@ -113,6 +121,7 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
         s.pvPowerW = es.mpptPwr;
         s.gridPowerW = es.sysGridPwr;
         s.housePowerW = es.sysLoadPwr; // hier echter Messwert
+        hauslastGemessen = true;
     }
     if (msg.emsHeartbeat) {
         const hb = msg.emsHeartbeat;
@@ -163,6 +172,11 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
         if (t.pcsTotalW !== null) {
             s.inverterPowerW = t.pcsTotalW;
         }
+        // Gemessen schlaegt gerechnet - siehe computeHouseLoad()
+        if (t.housePowerW !== null) {
+            s.housePowerW = Math.max(0, Math.round(t.housePowerW));
+            hauslastGemessen = true;
+        }
         // Phasen delta-kodiert: nur uebertragene Felder ueberschreiben
         const keys = [null, 'a', 'b', 'c'];
         for (const [index, partial] of t.phases) {
@@ -190,7 +204,8 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
         });
     }
     // Hauslast nur berechnen, wenn sie nicht schon gemessen vorliegt
-    if (!msg.energyStream) {
+    s.housePowerMeasured = hauslastGemessen;
+    if (!hauslastGemessen) {
         s.housePowerW = computeHouseLoad(s);
     }
     return s;

@@ -229,9 +229,13 @@ describe('mergeSnapshot — mit echten aufgezeichneten Payloads', () => {
         expect(s.batterySoc).toBe(100);
         expect(s.batteryRemainingWh).toBe(10048);
         // Ohne Wechselrichter-Block gibt es kein Feld 4.13 und damit keinen
-        // Netzwert; die Hauslast faellt auf die alte Bilanz zurueck.
+        // Netzwert.
         expect(s.gridPowerW).toBeNull();
-        expect(s.housePowerW).toBe(1127);
+        // Die Hauslast kommt gemessen aus Block 87 und wird nicht gerechnet.
+        // Sie liegt hier ueber der PV-Leistung, weil zusaetzlich ein kleiner
+        // Netzbezug lief - dessen Feld fehlt in dieser Aufzeichnung.
+        expect(s.housePowerW).toBe(1150);
+        expect(s.housePowerMeasured).toBe(true);
     });
 });
 

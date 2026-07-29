@@ -126,6 +126,17 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.3.1
+
+- **House consumption is now read from the device instead of being calculated.**
+  The device reports it directly, balanced against solar, battery and grid in
+  the same instant. The previous calculation (inverter output plus grid) came
+  out systematically low, because those two fields are updated independently
+  and therefore stem from different moments — 2018 W calculated against 2100 W
+  reported on one system, 306 W against 490 W on another. This also corrects
+  the `energy.houseConsumed` counter and every self-sufficiency figure derived
+  from it
+
 ### 0.3.0
 
 - **Energy counters** under `energy.*` in Wh: grid consumption and return,

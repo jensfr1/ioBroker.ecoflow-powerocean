@@ -89,3 +89,38 @@ describe('decodeMqttPayload — Robustheit', () => {
         expect(() => decodeMqttPayload(noise)).not.toThrow();
     });
 });
+
+describe('Hauslast (Feld 7.1/87.1)', () => {
+    /*
+     * Aufgezeichnet am 28.07.2026 an einer dreiphasigen Anlage mit zwei
+     * Modulen (Seriennummern anonymisiert). Der Frame belegt, warum die
+     * Hauslast gemessen und nicht gerechnet gehoert: Block 87 meldet 490 W und
+     * bilanziert sauber (PV 2570 - Batterie 310 - Einspeisung 1770 = 490),
+     * waehrend Wechselrichter plus Netz aus Block 4 nur 306 W ergeben - diese
+     * beiden Felder stammen aus verschiedenen Momenten.
+     *
+     * Der Frame traegt Block 7 und Block 87 gleichzeitig mit leicht
+     * abweichenden Werten. Block 87 gewinnt; die App zeigte dessen Zahlen.
+     */
+    const HOUSE_HEX =
+        '0af6010a9b01225a0d73060e451a390a111dad563744258eebe2422d1485394430010a111d077f374425a695c7422d352f394430020a111dd60b374425b929cf422d6ede384430032d426557446d3bccf5c4720e0a0c0802157b62c84325e079bc443a14150000e1c41d00e021452500009b433500e0214582040a0d224599431504bcb745ba05190d0000f543150040ddc41d00a020452500009b433500a020451060182020012801380340fe014827509b01580170d3d5be0578fe01800104c2011052453131585858585858585858585858ca011052453131585858585858585858585858d2011052453131585858585858585858585858';
+
+    it('nimmt die gemeldete Hauslast, nicht die Rechnung aus Block 4', () => {
+        const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
+        expect(t.housePowerW).toBe(490);
+        // Was die alte Rechnung ergeben haette - deutlich daneben
+        expect(Math.round(t.pcsTotalW! + t.gridPowerW!)).toBe(306);
+    });
+
+    it('bilanziert mit PV, Batterie und Netz', () => {
+        const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
+        expect(t.pvPowerW).toBe(2570);
+        expect(t.batteryPowerW).toBe(310);
+        expect(t.pvPowerW! - t.batteryPowerW! - 1770).toBe(t.housePowerW);
+    });
+
+    it('bevorzugt Feld 4.13 als Netzleistung gegenueber 7.2', () => {
+        const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
+        expect(t.gridPowerW).toBeCloseTo(-1966.4, 1);
+    });
+});
