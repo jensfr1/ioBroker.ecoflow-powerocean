@@ -85,7 +85,8 @@ ecoflow-powerocean.0
 ├── battery.power              W    positive = charging, negative = discharging
 ├── battery.charging           bool
 ├── battery.remainingEnergy    Wh
-├── battery.packs.<n>.*             per battery module (soc, temperature, voltage, …)
+├── battery.packs.<n>.*             per battery module (soc, temperature,
+│                                   cellVoltage, remainingWh, power, soh, cycles)
 ├── grid.power                 W    positive = import, negative = export
 ├── house.power                W    calculated, see below
 ├── inverter.power             W    inverter AC output
@@ -98,17 +99,16 @@ ecoflow-powerocean.0
 └── phases.<a|b|c>.*           V / A / W / var / VA
 ```
 
-**`house.power` is calculated, not measured.** The device does not report house
-load directly. Two sources feed the house node — the inverter (which already
-accounts for solar and battery) and the grid:
+**`house.power` comes from the device**, which reports it balanced against
+solar, battery and grid in the same instant. Only when that field is missing
+does the adapter fall back to a calculation — and that fallback comes out
+systematically low, because the fields it relies on are updated independently
+and therefore stem from different moments.
 
-```
-house = inverter output + grid import
-```
-
-That is more accurate than going via `solar − battery + grid`, because
-conversion losses are already included in the inverter value. If either value
-is missing, the old balance is used as a fallback.
+> **What house consumption really means:** the device reports what your house
+> draws *on top of* everything feeding in behind its meter. If you run a second,
+> unmetered source — a balcony solar unit, for example — its output never shows
+> up, and the value here is lower than your actual consumption.
 
 ## Development
 
@@ -125,6 +125,24 @@ npx tsx test/live-check.ts <email> <password> <serial>
 ```
 
 ## Changelog
+
+### 0.4.0
+
+- **Three battery module fields were mapped wrongly** — reported by Sebastian
+  ([ecoflow-energy-ha](https://github.com/shuette42/ecoflow-energy-ha)) and
+  measured against a running system before changing anything:
+  - Field 54 is the **remaining energy**, not the full capacity (4114 Wh at
+    81.5 % puts full capacity at about 5046 Wh). Read as capacity the value
+    drops while discharging — permanently misleading in operation
+  - Field 39 is the **state of health**, not the state of charge: constant
+    100.0 across the whole measurement while field 38 moved
+  - Field 6 is a **cell voltage** (3329 mV), not the pack voltage — it follows
+    the load. The object tree showed 332.6 V
+- The state `battery.packs.N.voltage` is replaced by `cellVoltage`, and
+  `capacityWh` by `remainingWh`. The old states stay behind in the object tree
+  and can be deleted
+- The pack voltage is no longer published at all: it appears in none of the 61
+  observed fields, and a wrong number is worse than none
 
 ### 0.3.1
 

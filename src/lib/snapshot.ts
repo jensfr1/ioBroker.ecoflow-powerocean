@@ -30,8 +30,12 @@ export interface BatteryPack {
     sn: string;
     soc: number;
     temperature: number;
-    voltage: number;
-    capacityWh: number;
+    /** Packspannung in V - nur die aeltere Generation meldet sie. */
+    voltage: number | null;
+    /** Hoechste Zellspannung in V (Ocean 2, Feld 6). */
+    cellVoltage: number | null;
+    /** Verbleibende Energie in Wh - nicht die Kapazitaet. */
+    remainingWh: number;
     /** Modul-Leistung in W: positiv = laden, negativ = entladen. */
     powerW: number | null;
     /** Alterungszustand in %. */
@@ -218,7 +222,8 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             soc: pack.realSoc || pack.soc,
             temperature: pack.tempEnv,
             voltage: pack.vol,
-            capacityWh: pack.remainWh,
+            cellVoltage: null,
+            remainingWh: pack.remainWh,
             powerW: pack.pwr,
             sohPercent: pack.soh,
             cycles: pack.cycles,
@@ -271,8 +276,9 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             sn: pack.sn,
             soc: pack.realSoc || pack.socPercent,
             temperature: pack.tempC,
-            voltage: pack.voltageV,
-            capacityWh: pack.fullCapacityWh,
+            voltage: null,
+            cellVoltage: pack.cellVoltageV,
+            remainingWh: pack.remainingWh,
             powerW: pack.powerW,
             sohPercent: pack.sohPercent,
             cycles: pack.cycles,

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "news": {
+      "0.4.0": {
+        "en": "Battery module: field 54 is remaining energy, 39 is state of health, 6 is a cell voltage - corrected",
+        "de": "Batteriemodul: Feld 54 ist Restenergie, 39 der Alterungszustand, 6 eine Zellspannung - korrigiert",
+        "ru": "Батарейный модуль: поле 54 — остаток энергии, 39 — состояние здоровья, 6 — напряжение ячейки",
+        "pt": "Módulo da bateria: campo 54 é energia restante, 39 é estado de saúde, 6 é tensão de célula",
+        "nl": "Accumodule: veld 54 is resterende energie, 39 is batterijgezondheid, 6 is celspanning",
+        "fr": "Module batterie : le champ 54 est l'énergie restante, 39 l'état de santé, 6 une tension de cellule",
+        "it": "Modulo batteria: il campo 54 è energia residua, 39 lo stato di salute, 6 una tensione di cella",
+        "es": "Módulo de batería: el campo 54 es energía restante, 39 el estado de salud, 6 una tensión de celda",
+        "pl": "Moduł akumulatora: pole 54 to energia pozostała, 39 stan zdrowia, 6 napięcie ogniwa",
+        "uk": "Батарейний модуль: поле 54 — залишок енергії, 39 — стан здоров'я, 6 — напруга комірки",
+        "zh-cn": "电池模块：字段 54 为剩余电量，39 为健康状态，6 为电芯电压——已更正"
+      },
       "0.3.1": {
         "en": "House consumption now read from the device instead of calculated — the old formula came out systematically low",
         "de": "Hausverbrauch kommt jetzt vom Gerät statt aus einer Rechnung — die alte Formel lag systematisch zu niedrig",

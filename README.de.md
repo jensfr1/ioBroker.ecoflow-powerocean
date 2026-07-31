@@ -89,7 +89,8 @@ ecoflow-powerocean.0
 ├── battery.power              W    positiv = laden, negativ = entladen
 ├── battery.charging           bool
 ├── battery.remainingEnergy    Wh
-├── battery.packs.<n>.*             je Batteriemodul (soc, temperature, voltage, …)
+├── battery.packs.<n>.*             je Batteriemodul (soc, temperature,
+│                                   cellVoltage, remainingWh, power, soh, cycles)
 ├── grid.power                 W    positiv = Bezug, negativ = Einspeisung
 ├── house.power                W    berechnet, siehe unten
 ├── inverter.power             W    AC-Ausgang des Wechselrichters
@@ -102,17 +103,17 @@ ecoflow-powerocean.0
 └── phases.<a|b|c>.*           V / A / W / var / VA
 ```
 
-**`house.power` ist berechnet, nicht gemessen.** Das Gerät meldet die Hauslast
-nicht direkt. Am Hausknoten hängen aber genau zwei Quellen — der
-Wechselrichter (der PV und Batterie bereits verrechnet hat) und das Netz:
+**`house.power` kommt vom Gerät**, das ihn im selben Moment mit Solar, Batterie
+und Netz bilanziert meldet. Nur wenn dieses Feld fehlt, greift eine Rechnung —
+und die fällt systematisch zu niedrig aus, weil die Felder, auf die sie sich
+stützt, unabhängig voneinander aktualisiert werden und damit aus verschiedenen
+Momenten stammen.
 
-```
-Haus = Wechselrichter-Ausgang + Netzbezug
-```
-
-Das ist genauer als der Umweg über `PV − Batterie + Netz`, weil die
-Wandlungsverluste schon im Wechselrichterwert stecken. Fehlt einer der beiden
-Werte, greift die alte Bilanz als Rückfallebene.
+> **Was der Hausverbrauch wirklich bedeutet:** Das Gerät meldet, was dein Haus
+> *zusätzlich* zu allem braucht, was hinter seinem Messpunkt einspeist. Läuft
+> bei dir eine zweite, nicht mitgemessene Quelle — etwa ein Balkonkraftwerk —,
+> taucht deren Ertrag nie auf, und der Wert hier liegt unter dem tatsächlichen
+> Verbrauch.
 
 ## Entwicklung
 
@@ -129,6 +130,24 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 ```
 
 ## Changelog
+
+### 0.4.0
+
+- **Drei Felder im Batteriemodul waren falsch zugeordnet** — gemeldet von
+  Sebastian ([ecoflow-energy-ha](https://github.com/shuette42/ecoflow-energy-ha))
+  und vor der Änderung an einer laufenden Anlage nachgemessen:
+  - Feld 54 ist die **Restenergie**, nicht die volle Kapazität (4114 Wh bei
+    81,5 % ergibt rund 5046 Wh Vollkapazität). Als Kapazität gelesen sinkt der
+    Wert beim Entladen — im Betrieb dauerhaft irreführend
+  - Feld 39 ist der **Alterungszustand**, nicht der Ladestand: über die ganze
+    Messung konstant 100,0, während Feld 38 sich bewegte
+  - Feld 6 ist eine **Zellspannung** (3329 mV), keine Packspannung — sie folgt
+    der Last. Im Objektbaum standen 332,6 V
+- Der State `battery.packs.N.voltage` heißt jetzt `cellVoltage`, `capacityWh`
+  heißt `remainingWh`. Die alten States bleiben als Leichen im Objektbaum
+  stehen und können gelöscht werden
+- Die Packspannung wird gar nicht mehr veröffentlicht: Sie steht in keinem der
+  61 beobachteten Felder, und ein falscher Wert ist schlechter als keiner
 
 ### 0.3.1
 

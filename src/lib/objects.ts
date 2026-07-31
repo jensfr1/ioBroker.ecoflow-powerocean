@@ -187,14 +187,18 @@ export const PACK_STATES: Array<Omit<StateDef, 'id'> & { key: string }> = [
         unit: '°C',
     },
     {
-        key: 'voltage',
-        name: { en: 'Voltage', de: 'Spannung' },
+        key: 'cellVoltage',
+        name: { en: 'Highest cell voltage', de: 'Höchste Zellspannung' },
+        desc: {
+            en: 'The Ocean 2 does not report a pack voltage in any observed field',
+            de: 'Eine Packspannung meldet das Ocean 2 in keinem beobachteten Feld',
+        },
         type: 'number',
         role: 'value.voltage',
         unit: 'V',
     },
     {
-        key: 'capacityWh',
+        key: 'remainingWh',
         name: { en: 'Remaining energy', de: 'Verbleibende Energie' },
         type: 'number',
         role: 'value.energy',

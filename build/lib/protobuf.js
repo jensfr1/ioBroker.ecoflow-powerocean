@@ -330,14 +330,31 @@ function decodePo2BatteryPack(pdata) {
     if (packIndex < 1) {
         return null;
     }
+    /*
+     * Korrigiert am 31.07.2026 nach einem Hinweis von Sebastian
+     * (ecoflow-energy-ha) und an der laufenden Anlage nachgemessen:
+     *
+     *   54  ist die Restenergie, NICHT die volle Kapazitaet. Gemessen 4114 Wh
+     *       bei 81,5 % und 4137 Wh bei 82,0 % - macht rund 5046 Wh
+     *       Vollkapazitaet. Als Kapazitaet gelesen sinkt der Wert beim
+     *       Entladen; im Betrieb ist das dauerhaft irrefuehrend.
+     *   39  ist der SoH, nicht der SoC: ueber die gesamte Messung konstant
+     *       100,0, waehrend 38 sich bewegte. Das Paar 38/39 spiegelt 2/3.
+     *    6  ist eine Zellspannung (3329 mV), keine Packspannung - sie folgt
+     *       der Last. Das Teilen durch 10 war schon ein Warnzeichen: Ein
+     *       float braucht keine Skalierung.
+     *
+     * Die Packspannung liegt in keinem beobachteten Feld und wird deshalb gar
+     * nicht mehr gemeldet, statt einen falschen Wert auszuweisen.
+     */
     return {
         packIndex,
         sn,
-        socPercent: num(p, 39),
+        socPercent: num(p, 38),
         realSoc: num(p, 38),
-        fullCapacityWh: num(p, 54),
+        remainingWh: num(p, 54),
         tempC: num(p, 21),
-        voltageV: num(p, 6) / 10,
+        cellVoltageV: num(p, 6) / 1000,
         // 1/3/17 tragen dieselbe Bedeutung wie bei der aelteren Generation -
         // geprueft am 28.07.2026: 1122,59 W / 100 % / 4 Zyklen an einem vier
         // Wochen alten System.
