@@ -80,6 +80,16 @@ const num = (f, n, fallback = 0) => {
     const v = f.get(n)?.[0];
     return typeof v === 'number' ? v : typeof v === 'bigint' ? Number(v) : fallback;
 };
+/**
+ * Groesster Wert aus mehreren gleichartigen Feldern - fuer Sensorgruppen, bei
+ * denen nur der waermste Punkt interessiert. Nicht vorhandene Felder werden
+ * uebergangen statt als 0 zu zaehlen, sonst zoege ein fehlendes Feld das
+ * Maximum nach unten.
+ */
+const maxOf = (f, nrs) => {
+    const werte = nrs.filter(n => f.has(n)).map(n => num(f, n));
+    return werte.length ? Math.max(...werte) : 0;
+};
 const bytes = (f, n) => {
     const v = f.get(n)?.[0];
     return v instanceof Uint8Array ? v : new Uint8Array(0);
@@ -344,8 +354,30 @@ function decodePo2BatteryPack(pdata) {
      *       der Last. Das Teilen durch 10 war schon ein Warnzeichen: Ein
      *       float braucht keine Skalierung.
      *
-     * Die Packspannung liegt in keinem beobachteten Feld und wird deshalb gar
-     * nicht mehr gemeldet, statt einen falschen Wert auszuweisen.
+     * Nachtrag vom 31.07.2026: Die Packspannung gibt es doch - in Feld 9. Sie
+     * war uebersehen worden, weil 16,5 V fuer einen Hausspeicher unplausibel
+     * niedrig wirken. Die Module sind aber 5S aufgebaut: 16,46 V geteilt durch
+     * 3,311 V je Zelle ergibt genau 5 Zellen in Reihe. Bestaetigt ueber die
+     * Leistungsbilanz - Feld 9 mal Feld 10 trifft Feld 1 auf 1 % genau, bei
+     * beiden Modulen unabhaengig.
+     *
+     * Die Temperaturfelder wurden am 01.08.2026 ueber einen Lastversuch
+     * getrennt (45 min Wallbox, bis 3,6 kW je Modul). Entscheidend ist die
+     * Dynamik, nicht der Absolutwert - bei einer sich insgesamt aufheizenden
+     * Anlage korreliert jeder traege Sensor zufaellig mit der Last:
+     *
+     *   23/24/32/33  folgen der Last binnen einer Minute, 11-17 K Hub, bis
+     *                7 K/min, und fallen ebenso schnell wieder ab. Das kann
+     *                nur Leistungselektronik sein.
+     *   31 <= 21 <= 30  gilt in beiden Modulen zu jedem Zeitpunkt beider
+     *                Messreihen. Alle drei steigen ueber 45 min monoton um
+     *                4-6 K und ignorieren Lastwechsel - Zelltemperatur
+     *                min/mittel/max.
+     *   22/25        traege wie die Zellen, liegen aber bei 42-54 C.
+     *                Vermutlich Kuehlkoerper oder Gehaeuse; nicht uebernommen.
+     *   36           steht in beiden Modulen und ueber beide Messreihen
+     *                konstant auf 33 - keine Temperatur, sondern ein fester
+     *                Wert.
      */
     return {
         packIndex,
@@ -354,7 +386,12 @@ function decodePo2BatteryPack(pdata) {
         realSoc: num(p, 38),
         remainingWh: num(p, 54),
         tempC: num(p, 21),
+        tempMinCellC: num(p, 31),
+        tempMaxCellC: num(p, 30),
+        tempMosC: maxOf(p, [23, 24, 32, 33]),
         cellVoltageV: num(p, 6) / 1000,
+        voltageV: num(p, 9),
+        currentA: num(p, 10),
         // 1/3/17 tragen dieselbe Bedeutung wie bei der aelteren Generation -
         // geprueft am 28.07.2026: 1122,59 W / 100 % / 4 Zyklen an einem vier
         // Wochen alten System.

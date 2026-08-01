@@ -155,7 +155,36 @@ exports.PACK_STATES = [
     },
     {
         key: 'temperature',
-        name: { en: 'Temperature', de: 'Temperatur' },
+        name: { en: 'Cell temperature', de: 'Zelltemperatur' },
+        desc: {
+            en: 'Average across the cells, between the minimum and maximum',
+            de: 'Mittel über die Zellen, zwischen Minimum und Maximum',
+        },
+        type: 'number',
+        role: 'value.temperature',
+        unit: '°C',
+    },
+    {
+        key: 'tempMinCell',
+        name: { en: 'Coldest cell', de: 'Kälteste Zelle' },
+        type: 'number',
+        role: 'value.temperature',
+        unit: '°C',
+    },
+    {
+        key: 'tempMaxCell',
+        name: { en: 'Hottest cell', de: 'Wärmste Zelle' },
+        type: 'number',
+        role: 'value.temperature',
+        unit: '°C',
+    },
+    {
+        key: 'tempMos',
+        name: { en: 'Power electronics', de: 'Leistungselektronik' },
+        desc: {
+            en: 'Hottest of the four semiconductor sensors - follows the load within a minute',
+            de: 'Wärmster der vier Halbleiter-Sensoren - folgt der Last binnen einer Minute',
+        },
         type: 'number',
         role: 'value.temperature',
         unit: '°C',
@@ -170,6 +199,28 @@ exports.PACK_STATES = [
         type: 'number',
         role: 'value.voltage',
         unit: 'V',
+    },
+    {
+        key: 'voltage',
+        name: { en: 'Pack voltage', de: 'Packspannung' },
+        desc: {
+            en: 'Five cells in series, so around 16.5 V',
+            de: 'Fünf Zellen in Reihe, also rund 16,5 V',
+        },
+        type: 'number',
+        role: 'value.voltage',
+        unit: 'V',
+    },
+    {
+        key: 'current',
+        name: { en: 'Current', de: 'Strom' },
+        desc: {
+            en: 'Positive = charging, negative = discharging',
+            de: 'Positiv = laden, negativ = entladen',
+        },
+        type: 'number',
+        role: 'value.current',
+        unit: 'A',
     },
     {
         key: 'remainingWh',

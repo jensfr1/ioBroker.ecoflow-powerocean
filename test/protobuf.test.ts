@@ -124,3 +124,60 @@ describe('Hauslast (Feld 7.1/87.1)', () => {
         expect(t.gridPowerW).toBeCloseTo(-1966.4, 1);
     });
 });
+
+/*
+ * Batteriemodul (cmdFunc 254, cmdId 46), aufgezeichnet am 01.08.2026 waehrend
+ * einer Wallbox-Ladung, Seriennummern anonymisiert. Das Modul entlud mit
+ * 2664 W - deshalb liegt die Leistungselektronik 25 K ueber den Zellen.
+ *
+ * Die Temperaturzuordnung stammt aus einem Lastversuch ueber 45 Minuten.
+ * Entscheidend war die Dynamik, nicht der Absolutwert: Bei einer sich
+ * insgesamt aufheizenden Anlage korreliert jeder traege Sensor zufaellig mit
+ * der Last, weshalb ein blosser Mittelwertvergleich neun von zehn Feldern
+ * faelschlich als Leistungselektronik ausweist.
+ */
+const PACK_HEX =
+    '0a9b030aee02081e2ae9020d8e8126c5102f18642a14000024420000204200001c420000184200001c4235007049453d0000494540014d9a997f415578e128c35dbd73404965229a22c86800721400704945004049450030494500004945000049457801820110524531325858585858585858585858588801069001009d0100a0be45a50100e0c445ad0100001842b50100006042bd0100006c42c50100007042cd0100006842d001ab838001d80199d67ee001909513e8019e9413f50100002442fd0100001842850200007c428d02000074429002009802ffff03a00221a80291d4b6d306b50246a04342bd020000c842c00200c80205d00264d80201e00200e80283d001f00201f802a0828408800385808408880302900301980301a003c4c209a803c09710b503c3931645bd03740c4042c50300000000cd0346a04342d50346a04342dd033033dc3fe5035db9c742ed039af1c742f00300f8030080040088048a95029004d78802a00402ad040050494510601820200140fe01482e50ee0278fe01800103880101c2011052453131585858585858585858585858';
+
+describe('Batteriemodul (cmdId 46)', () => {
+    const pack = decodeMqttPayload(hexToBytes(PACK_HEX)).po2BatteryPacks[0];
+
+    it('liest Ladestand, Leistung und Zyklen', () => {
+        expect(pack.packIndex).toBe(1);
+        expect(pack.socPercent).toBeCloseTo(48.9, 1);
+        expect(pack.powerW).toBeCloseTo(-2664.1, 1);
+        expect(pack.cycles).toBe(6);
+    });
+
+    it('liest Packspannung und Strom, die zur Leistung passen', () => {
+        expect(pack.voltageV).toBeCloseTo(15.98, 2);
+        expect(pack.currentA).toBeCloseTo(-168.88, 2);
+        // Spannung mal Strom trifft die gemeldete Leistung auf wenige Prozent
+        expect(pack.voltageV * pack.currentA).toBeCloseTo(pack.powerW, -2);
+    });
+
+    it('bestaetigt den 5S-Aufbau', () => {
+        // 16 V Packspannung wirken fuer einen Hausspeicher unplausibel - bis man
+        // durch die Zellspannung teilt und genau 5 Zellen in Reihe herauskommen.
+        expect(pack.voltageV / pack.cellVoltageV).toBeCloseTo(5, 0);
+    });
+
+    it('trennt Zelltemperatur von Leistungselektronik', () => {
+        expect(pack.tempC).toBe(38);
+        expect(pack.tempMinCellC).toBe(38);
+        expect(pack.tempMaxCellC).toBe(41);
+        // Waermster der vier Halbleiter-Sensoren (59/60/63/61)
+        expect(pack.tempMosC).toBe(63);
+    });
+
+    it('haelt die Reihenfolge min <= mittel <= max ein', () => {
+        // Gilt in beiden Modulen ueber beide Messreihen - das ist der Grund, die
+        // Felder 31/21/30 als min/mittel/max zu lesen.
+        expect(pack.tempMinCellC).toBeLessThanOrEqual(pack.tempC);
+        expect(pack.tempC).toBeLessThanOrEqual(pack.tempMaxCellC);
+    });
+
+    it('haelt die Elektronik deutlich ueber den Zellen', () => {
+        expect(pack.tempMosC).toBeGreaterThan(pack.tempMaxCellC);
+    });
+});

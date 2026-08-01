@@ -1,6 +1,6 @@
 {
   "name": "iobroker.ecoflow-powerocean",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Reads live data from the EcoFlow Ocean 2 and other PowerOcean systems via the EcoFlow app MQTT broker",
   "author": {
     "name": "Jens Franke",

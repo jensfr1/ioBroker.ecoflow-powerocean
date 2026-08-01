@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "news": {
+      "0.5.0": {
+        "en": "Pack voltage found after all (field 9) plus current (field 10) - the modules are 5S. Temperature fields mapped from a load test: cell min/avg/max and power electronics",
+        "de": "Packspannung doch gefunden (Feld 9) samt Strom (Feld 10) - die Module sind 5S. Temperaturfelder aus einem Lastversuch zugeordnet: Zelle min/mittel/max und Leistungselektronik",
+        "ru": "Напряжение блока всё же найдено (поле 9) и ток (поле 10) - модули 5S. Температурные поля определены нагрузочным тестом: ячейка мин/сред/макс и силовая электроника",
+        "pt": "Tensão do pacote encontrada afinal (campo 9) e corrente (campo 10) - os módulos são 5S. Campos de temperatura mapeados por teste de carga: célula mín/méd/máx e eletrónica de potência",
+        "nl": "Pakspanning toch gevonden (veld 9) en stroom (veld 10) - de modules zijn 5S. Temperatuurvelden toegewezen via een belastingstest: cel min/gem/max en vermogenselektronica",
+        "fr": "La tension du pack existe bien (champ 9) et le courant (champ 10) - les modules sont 5S. Champs de température identifiés par test de charge : cellule min/moy/max et électronique de puissance",
+        "it": "La tensione del pacco esiste (campo 9) e la corrente (campo 10) - i moduli sono 5S. Campi di temperatura mappati con un test di carico: cella min/med/max ed elettronica di potenza",
+        "es": "La tensión del paquete sí existe (campo 9) y la corriente (campo 10) - los módulos son 5S. Campos de temperatura asignados con una prueba de carga: celda mín/med/máx y electrónica de potencia",
+        "pl": "Napięcie pakietu jednak istnieje (pole 9) i prąd (pole 10) - moduły są 5S. Pola temperatury przypisane testem obciążenia: ogniwo min/śr/maks i elektronika mocy",
+        "uk": "Напруга блока все ж знайдена (поле 9) і струм (поле 10) - модулі 5S. Температурні поля визначено навантажувальним тестом: комірка мін/сер/макс і силова електроніка",
+        "zh-cn": "确实存在电池组电压（字段 9）和电流（字段 10）——模块为 5S。通过负载测试确定温度字段：电芯最低/平均/最高以及功率电子"
+      },
       "0.4.0": {
         "en": "Battery module: field 54 is remaining energy, 39 is state of health, 6 is a cell voltage - corrected",
         "de": "Batteriemodul: Feld 54 ist Restenergie, 39 der Alterungszustand, 6 eine Zellspannung - korrigiert",

@@ -126,6 +126,32 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.5.0
+
+- **The pack voltage does exist after all — field 9, with the current in
+  field 10.** Version 0.4.0 claimed it appears in none of the observed fields.
+  That was wrong: 16.5 V looks implausibly low for a home battery, so the field
+  was dismissed. The modules are wired **5S** — 16.46 V divided by 3.311 V per
+  cell is exactly 5 cells in series. Confirmed through the power balance as
+  well: field 9 times field 10 matches field 1 to within 1 %, independently on
+  both modules. New states `battery.packs.N.voltage` and `.current`
+- **The temperature fields are mapped**, from a 45-minute load test with the
+  wallbox at up to 3.6 kW per module. What settles it is the dynamics, not the
+  absolute value: in a system that heats up overall, every sluggish sensor
+  correlates with the load by accident, which is why a plain average comparison
+  labels nine of ten fields as power electronics
+  - Fields 23/24/32/33 follow the load within a minute, 11–17 K of swing, up to
+    7 K/min, and fall just as fast. Published as `tempMos` — the hottest of the
+    four
+  - Fields 31 ≤ 21 ≤ 30 hold that order in both modules at every point of both
+    measurement runs, rise monotonically by 4–6 K over 45 minutes and ignore
+    load changes: minimum, average and maximum **cell** temperature. New states
+    `tempMinCell` and `tempMaxCell`; `temperature` keeps the average
+  - Field 36 reads a constant 33 in both modules across both runs — not a
+    temperature, and therefore not published
+- The existing state `battery.packs.N.temperature` now carries the documented
+  meaning "average cell temperature". Its value is unchanged
+
 ### 0.4.0
 
 - **Three battery module fields were mapped wrongly** — reported by Sebastian

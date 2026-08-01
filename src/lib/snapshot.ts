@@ -29,11 +29,20 @@ export interface BatteryPack {
     packIndex: number;
     sn: string;
     soc: number;
+    /** Mittlere Zelltemperatur in Grad C. */
     temperature: number;
+    /** Niedrigste Zelltemperatur in Grad C (Ocean 2, Feld 31). */
+    tempMinCell: number | null;
+    /** Hoechste Zelltemperatur in Grad C (Ocean 2, Feld 30). */
+    tempMaxCell: number | null;
+    /** Waermster Punkt der Leistungselektronik in Grad C (Ocean 2). */
+    tempMos: number | null;
     /** Packspannung in V - nur die aeltere Generation meldet sie. */
     voltage: number | null;
     /** Hoechste Zellspannung in V (Ocean 2, Feld 6). */
     cellVoltage: number | null;
+    /** Modulstrom in A: positiv = laden, negativ = entladen. */
+    current: number | null;
     /** Verbleibende Energie in Wh - nicht die Kapazitaet. */
     remainingWh: number;
     /** Modul-Leistung in W: positiv = laden, negativ = entladen. */
@@ -221,8 +230,13 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             sn: pack.sn,
             soc: pack.realSoc || pack.soc,
             temperature: pack.tempEnv,
+            // Die aeltere Generation meldet nur eine Temperatur
+            tempMinCell: null,
+            tempMaxCell: null,
+            tempMos: null,
             voltage: pack.vol,
             cellVoltage: null,
+            current: pack.amp,
             remainingWh: pack.remainWh,
             powerW: pack.pwr,
             sohPercent: pack.soh,
@@ -276,8 +290,12 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
             sn: pack.sn,
             soc: pack.realSoc || pack.socPercent,
             temperature: pack.tempC,
-            voltage: null,
+            tempMinCell: pack.tempMinCellC,
+            tempMaxCell: pack.tempMaxCellC,
+            tempMos: pack.tempMosC,
+            voltage: pack.voltageV,
             cellVoltage: pack.cellVoltageV,
+            current: pack.currentA,
             remainingWh: pack.remainingWh,
             powerW: pack.powerW,
             sohPercent: pack.sohPercent,

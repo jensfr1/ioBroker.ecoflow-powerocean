@@ -131,6 +131,34 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.5.0
+
+- **Die Packspannung gibt es doch — Feld 9, den Strom in Feld 10.** Version
+  0.4.0 behauptete, sie tauche in keinem beobachteten Feld auf. Das war falsch:
+  16,5 V wirken für einen Hausspeicher unplausibel niedrig, deshalb war das Feld
+  verworfen worden. Die Module sind **5S** aufgebaut — 16,46 V geteilt durch
+  3,311 V je Zelle ergibt genau 5 Zellen in Reihe. Über die Leistungsbilanz
+  bestätigt: Feld 9 mal Feld 10 trifft Feld 1 auf 1 % genau, bei beiden Modulen
+  unabhängig. Neue Zustände `battery.packs.N.voltage` und `.current`
+- **Die Temperaturfelder sind zugeordnet**, aus einem Lastversuch über 45
+  Minuten mit der Wallbox bei bis zu 3,6 kW je Modul. Entscheidend ist die
+  Dynamik, nicht der Absolutwert: Bei einer sich insgesamt aufheizenden Anlage
+  korreliert jeder träge Sensor zufällig mit der Last — ein bloßer
+  Mittelwertvergleich weist deshalb neun von zehn Feldern als
+  Leistungselektronik aus
+  - Die Felder 23/24/32/33 folgen der Last binnen einer Minute, 11–17 K Hub, bis
+    7 K/min, und fallen ebenso schnell wieder ab. Veröffentlicht als `tempMos` —
+    der wärmste der vier
+  - Die Felder 31 ≤ 21 ≤ 30 halten diese Reihenfolge in beiden Modulen zu jedem
+    Zeitpunkt beider Messreihen ein, steigen über 45 Minuten monoton um 4–6 K
+    und ignorieren Lastwechsel: minimale, mittlere und maximale
+    **Zell**temperatur. Neue Zustände `tempMinCell` und `tempMaxCell`;
+    `temperature` bleibt der Mittelwert
+  - Feld 36 steht in beiden Modulen über beide Messreihen konstant auf 33 —
+    keine Temperatur, wird deshalb nicht veröffentlicht
+- Der bestehende Zustand `battery.packs.N.temperature` trägt jetzt die
+  dokumentierte Bedeutung „mittlere Zelltemperatur". Sein Wert ändert sich nicht
+
 ### 0.4.0
 
 - **Drei Felder im Batteriemodul waren falsch zugeordnet** — gemeldet von

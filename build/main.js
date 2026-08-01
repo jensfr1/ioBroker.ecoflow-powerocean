@@ -286,7 +286,12 @@ class EcoflowPowerOceanAdapter extends utils.Adapter {
             await this.ensureDynamicChannel(channelId, { en: `Module ${index}`, de: `Modul ${index}` }, objects_1.PACK_STATES);
             await set(`${channelId}.soc`, round(pack.soc, 1));
             await set(`${channelId}.temperature`, round(pack.temperature, 1));
+            await set(`${channelId}.tempMinCell`, round(pack.tempMinCell, 1));
+            await set(`${channelId}.tempMaxCell`, round(pack.tempMaxCell, 1));
+            await set(`${channelId}.tempMos`, round(pack.tempMos, 1));
             await set(`${channelId}.cellVoltage`, round(pack.cellVoltage, 3));
+            await set(`${channelId}.voltage`, round(pack.voltage, 2));
+            await set(`${channelId}.current`, round(pack.current, 2));
             await set(`${channelId}.remainingWh`, round(pack.remainingWh));
             await set(`${channelId}.power`, round(pack.powerW));
             await set(`${channelId}.soh`, round(pack.sohPercent, 1));
