@@ -131,6 +131,30 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.6.0
+
+- **PV-, Netz- und Batterieleistung kommen jetzt zuerst aus dem
+  Energiefluss-Block.** Das Gerät meldet jeden dieser Werte doppelt: im
+  Flussblock 7/87, dessen vier Werte aus einem Augenblick stammen und exakt
+  bilanzieren (PV − Batterie + Netz = Haus), und in den Feldern 65.4, 4.13 und
+  65.20, die feiner auflösen, aber jeweils ihren eigenen Moment lesen. Bisher
+  gewannen die feineren Felder, deshalb gingen die vier States nicht auf — in
+  einem aufgezeichneten Frame stand die Netzleistung bei −1966 W gegen −1770 W
+  im Flussblock, knapp 200 W auseinander, und nur der Flusswert bilanziert.
+  Die feineren Felder springen jetzt nur noch ein, wenn der Flussblock den Wert
+  nicht trägt. Die PV-Leistung kommt dadurch in 10-W-Schritten; das ist die
+  Auflösung des Flussblocks, kein Datenverlust
+- **Feld 65.20 ist vorzeichenbehaftet**, negativ beim Laden — umgekehrt zum
+  Flussblock. Bisher als Betrag gelesen und nur bei exakt 0 übernommen; in
+  Nachrichten ohne Flussblock blieb die Batterieleistung deshalb auf dem
+  letzten Flusswert stehen: Ein mit 5 kW ladender Akku meldete weiter, was er
+  vorher tat. Gemessen über 17 aufeinanderfolgende Frames während einer Ladung
+- **Der Alterungszustand der Module kommt aus Feld 39, nicht aus Feld 3.**
+  Beide zeigen auf einem gesunden Modul 100, die Werte trennen sie also nicht
+  — der Wire-Typ schon: Feld 3 kommt als Ganzzahl, Feld 39 als Float. Sie
+  laufen erst bei einem gealterten Speicher auseinander, also genau dann, wenn
+  der Wert etwas aussagt. Heute keine sichtbare Änderung
+
 ### 0.5.0
 
 - **Die Packspannung gibt es doch — Feld 9, den Strom in Feld 10.** Version

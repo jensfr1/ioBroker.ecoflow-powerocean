@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "news": {
+      "0.6.0": {
+        "en": "Solar, grid and battery power now come from the balanced energy-flow block first; field 65.20 is read as signed; module state of health reads field 39",
+        "de": "PV-, Netz- und Batterieleistung zuerst aus dem bilanzierten Flussblock; Feld 65.20 vorzeichenbehaftet; Alterungszustand der Module aus Feld 39",
+        "ru": "Мощность PV, сети и батареи теперь сначала берётся из сбалансированного блока энергопотока; поле 65.20 читается со знаком; состояние модулей — из поля 39",
+        "pt": "Potência solar, da rede e da bateria agora vem primeiro do bloco de fluxo de energia equilibrado; campo 65.20 lido com sinal; estado de saúde dos módulos no campo 39",
+        "nl": "Zonne-, net- en batterijvermogen komen nu eerst uit het gebalanceerde energiestroomblok; veld 65.20 wordt met teken gelezen; gezondheid van de modules uit veld 39",
+        "fr": "Puissances solaire, réseau et batterie issues d'abord du bloc de flux d'énergie équilibré ; champ 65.20 lu comme signé ; état de santé des modules depuis le champ 39",
+        "it": "Potenza solare, di rete e della batteria ora prima dal blocco di flusso energetico bilanciato; campo 65.20 letto con segno; stato di salute dei moduli dal campo 39",
+        "es": "La potencia solar, de red y de batería ahora proviene primero del bloque de flujo de energía equilibrado; el campo 65.20 se lee con signo; estado de salud de los módulos del campo 39",
+        "pl": "Moc PV, sieci i baterii pochodzi teraz najpierw ze zbilansowanego bloku przepływu energii; pole 65.20 odczytywane ze znakiem; stan zdrowia modułów z pola 39",
+        "uk": "Потужність PV, мережі та батареї тепер спершу береться зі збалансованого блоку енергопотоку; поле 65.20 читається зі знаком; стан модулів — з поля 39",
+        "zh-cn": "光伏、电网和电池功率现在优先取自平衡的能量流区块；字段 65.20 按有符号值读取；模块健康状态读取字段 39"
+      },
       "0.5.0": {
         "en": "Pack voltage found after all (field 9) plus current (field 10) - the modules are 5S. Temperature fields mapped from a load test: cell min/avg/max and power electronics",
         "de": "Packspannung doch gefunden (Feld 9) samt Strom (Feld 10) - die Module sind 5S. Temperaturfelder aus einem Lastversuch zugeordnet: Zelle min/mittel/max und Leistungselektronik",

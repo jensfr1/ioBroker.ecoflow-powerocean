@@ -126,6 +126,28 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.6.0
+
+- **Solar, grid and battery power now come from the energy-flow block first.**
+  The device reports each of them twice: in the flow block 7/87, whose four
+  values come from one instant and balance exactly (PV − battery + grid =
+  house), and in fields 65.4, 4.13 and 65.20, which resolve more finely but
+  each read their own moment. Until now the finer fields won, so the four
+  states did not add up — in one recorded frame grid power read −1966 W against
+  −1770 W in the flow block, almost 200 W apart, and only the flow value
+  balances. The finer fields now fill in only when the flow block does not
+  carry the value. Expect solar power in steps of 10 W; that is the flow
+  block's resolution, not a loss of data
+- **Field 65.20 is signed**, negative while charging — the opposite convention
+  from the flow block. It used to be read as a magnitude and only taken over at
+  exactly 0, so in messages without a flow block the battery power stayed on
+  its last flow value: a pack charging at 5 kW kept reporting what it did
+  before. Measured over 17 consecutive frames during a charge
+- **Module state of health reads field 39, not field 3.** Both read 100 on a
+  healthy module, so the values cannot tell them apart; the wire type can —
+  field 3 arrives as an integer, field 39 as a float. They only diverge once a
+  pack ages, which is exactly when the reading matters. No visible change today
+
 ### 0.5.0
 
 - **The pack voltage does exist after all — field 9, with the current in

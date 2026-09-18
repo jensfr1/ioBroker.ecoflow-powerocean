@@ -225,15 +225,15 @@ describe('mergeSnapshot — mit echten aufgezeichneten Payloads', () => {
         const s = mergeSnapshot(SN, null, msg, 1785000000000);
         expect(s.sn).toBe(SN);
         expect(s.updatedAt).toBe(1785000000000);
-        expect(Math.round(s.pvPowerW!)).toBe(1127);
+        expect(Math.round(s.pvPowerW!)).toBe(1150);
         expect(s.batterySoc).toBe(100);
         expect(s.batteryRemainingWh).toBe(10048);
         // Ohne Wechselrichter-Block gibt es kein Feld 4.13 und damit keinen
         // Netzwert.
         expect(s.gridPowerW).toBeNull();
         // Die Hauslast kommt gemessen aus Block 87 und wird nicht gerechnet.
-        // Sie liegt hier ueber der PV-Leistung, weil zusaetzlich ein kleiner
-        // Netzbezug lief - dessen Feld fehlt in dieser Aufzeichnung.
+        // Sie ist gleich der PV-Leistung: Der Akku steht auf 100 %, und bei
+        // Nulleinspeisung regelt die Anlage PV genau auf den Verbrauch ab.
         expect(s.housePowerW).toBe(1150);
         expect(s.housePowerMeasured).toBe(true);
     });

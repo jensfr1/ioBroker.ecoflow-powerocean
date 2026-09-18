@@ -27,7 +27,10 @@ describe('decodeMqttPayload — Systemzusammenfassung (Feld 65)', () => {
 
     it('liest PV, Netz, Batterie und SoC', () => {
         const t = msg.po2Telemetry!;
-        expect(round(t.pvPowerW)).toBe(1127);
+        // Aus dem Flussblock 87, nicht aus 65.4 (1127 W): Der Flussblock
+        // gewinnt, weil seine vier Werte aus einem Augenblick stammen. Er
+        // rundet auf 10 W, deshalb die glatte Zahl.
+        expect(round(t.pvPowerW)).toBe(1150);
         expect(t.batteryPowerW).toBe(0);
         // Diese Aufzeichnung hat keinen Wechselrichter-Block, also kein Feld
         // 4.13 - und damit keinen Netzwert. Frueher stand hier 65.7 und lieferte
@@ -109,19 +112,25 @@ describe('Hauslast (Feld 7.1/87.1)', () => {
         const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
         expect(t.housePowerW).toBe(490);
         // Was die alte Rechnung ergeben haette - deutlich daneben
-        expect(Math.round(t.pcsTotalW! + t.gridPowerW!)).toBe(306);
+        expect(Math.round(t.pcsTotalW! + t.gridPowerW!)).toBe(502);
     });
 
     it('bilanziert mit PV, Batterie und Netz', () => {
         const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
         expect(t.pvPowerW).toBe(2570);
         expect(t.batteryPowerW).toBe(310);
-        expect(t.pvPowerW! - t.batteryPowerW! - 1770).toBe(t.housePowerW);
+        // Die vier Werte stammen aus einem Augenblick und gehen ohne
+        // Hilfskonstante auf - frueher stand hier die 1770 aus Block 87, weil
+        // gridPowerW aus 4.13 kam und um knapp 200 W danebenlag.
+        expect(t.pvPowerW! - t.batteryPowerW! + t.gridPowerW!).toBe(t.housePowerW);
     });
 
-    it('bevorzugt Feld 4.13 als Netzleistung gegenueber 7.2', () => {
+    it('nimmt den Flussblock als Netzleistung, nicht Feld 4.13', () => {
+        // Beide Quellen im selben Rahmen: 4.13 meldet -1966,4 W, der
+        // Flussblock -1770 W. Nur mit dem Flussblockwert geht die Bilanz des
+        // Rahmens auf.
         const t = decodeMqttPayload(hexToBytes(HOUSE_HEX)).po2Telemetry!;
-        expect(t.gridPowerW).toBeCloseTo(-1966.4, 1);
+        expect(t.gridPowerW).toBe(-1770);
     });
 });
 

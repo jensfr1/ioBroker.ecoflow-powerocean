@@ -157,7 +157,7 @@ export interface DecodedPo2Telemetry {
     gridPowerW: number | null;
     /** Hauslast, wie das Geraet sie selbst meldet (Feld 7.1/87.1). */
     housePowerW: number | null;
-    /** Signierte Batterieleistung aus Feld 7.4: positiv = Laden. */
+    /** Batterieleistung, positiv = Laden: Feld 7.4/87.4, sonst -65.20. */
     batteryPowerW: number | null;
     socPercent: number | null;
     remainingWh: number | null;
@@ -317,40 +317,67 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
     };
 
     // Feld 65 = Systemzusammenfassung: 4=PV, 7=Netz (~0 bei Nulleinspeisung, pos=Bezug),
-    // 15/18=verbleibende Energie Wh, 17=System-SoC, 20=Batterieleistung (Betrag).
+    // 15/18=verbleibende Energie Wh, 17=System-SoC, 20=Batterieleistung (signiert).
     // ACHTUNG: 65.6 ist NICHT der Netzzaehler, sondern der WR-Ausgang (mirror von 65.5)!
+    // Werte aus Block 65 bzw. 4 - nur gueltig, wenn der Flussblock schweigt.
+    let pvRueckfall: number | null = null;
+    let batterieRueckfall: number | null = null;
+    let netzRueckfall: number | null = null;
+
     const summary = f.get(65)?.[0];
     if (summary instanceof Uint8Array) {
         const s = decodeFields(summary);
-        result.pvPowerW = num(s, 4);
-        // 65.7 war frueher als Netzleistung eingeordnet - falsch, siehe 4.13.
+        // Nur Rueckfallebene - der Flussblock unten gewinnt, siehe dort.
+        if (s.has(4)) {
+            pvRueckfall = num(s, 4);
+        }
+        // 65.7 war frueher als Netzleistung eingeordnet - falsch, siehe Feld 4.13.
         result.socPercent = num(s, 17);
         result.remainingWh = num(s, 15);
-        // 65.20 = Batterie-Betrag: exakt 0 = idle (Feld 7.4 fehlt dann in den anderen
-        // Nachrichten, daher hier explizit auf 0 setzen; Vorzeichen kommt aus 7.4).
-        if (num(s, 20) === 0) {
-            result.batteryPowerW = 0;
+        /*
+         * 65.20 = Batterieleistung, signiert - negativ waehrend der Akku laedt.
+         *
+         * Frueher als Betrag eingeordnet und nur bei exakt 0 uebernommen. Gemessen
+         * am 17.09.2026 ueber 17 aufeinanderfolgende Frames waehrend einer Ladung:
+         * -871, -862, -852 W hier gegen +880, +830, +850 W in 7.4/87.4. Die
+         * Betraege folgen einander im ueblichen Versatz zwischen den Bloecken, das
+         * Vorzeichen ist durchgehend gedreht - dasselbe zeigen 13 Frames aus einer
+         * fremden Anlage.
+         *
+         * Ohne diese Umkehr blieb die Leistung in Nachrichten, die nur Block 65
+         * tragen, auf dem letzten Flusswert stehen: ein mit 5 kW ladender Akku
+         * meldete weiter, was er beim letzten Flussblock tat. Der Flussblock
+         * gewinnt weiterhin, wo beide da sind - er wird weiter unten gelesen und
+         * bilanziert mit den drei anderen Werten desselben Augenblicks.
+         */
+        if (s.has(20)) {
+            // 0 - x statt -x: ein ruhender Akku (Rohwert 0) ergaebe sonst -0.
+            batterieRueckfall = 0 - num(s, 20);
         }
     }
 
     /*
-     * Feld 7 (bzw. 87) = Energiefluss-Zusammenfassung, so wie die App sie zeigt:
+     * Feld 7 (bzw. 87) = Energiefluss-Zusammenfassung, so wie die App ihn zeigt:
      * 1=Hauslast, 2=Netz, 3=PV, 4=Batterie (signiert: positiv = Laden).
      *
      * Dieser Block ist in sich bilanziert - PV minus Batterie minus Netz ergibt
      * exakt die Hauslast, und alle vier Werte stammen aus demselben Moment. Das
-     * unterscheidet ihn von Block 4, dessen Felder einzeln und zu verschiedenen
-     * Zeitpunkten aktualisiert werden.
+     * ist der entscheidende Unterschied zu Block 4, dessen Felder einzeln und zu
+     * verschiedenen Zeitpunkten aktualisiert werden.
      *
-     * Beide Bloecke koennen gleichzeitig auftreten und weichen dann leicht
-     * voneinander ab - Block 7 hinkt offenbar einen Messzyklus hinterher, und
-     * ihm fehlt haeufiger ein Feld. Deshalb feldweise zusammenfuehren, wobei 87
-     * gewinnt: Im Log vom 28.07.2026 meldete Block 7 eine Hauslast von 550 W
-     * und Block 87 gleichzeitig 560 W - die App zeigte 560 W.
+     * Nachgewiesen am 29.07.2026 an zwei Anlagen: Feld 1 meldete 2100 W,
+     * waehrend 4.1 + 4.13 nur 2018 W ergab; im Log einer dritten Anlage lagen
+     * 490 W gegen 306 W. Die Bilanz stuetzt jeweils Feld 1.
      */
-    // Block 65 bleibt erste Wahl fuer die PV-Leistung; nur wenn er nichts
-    // geliefert hat, springt Block 7/87 ein.
-    const pvAusSummary = result.pvPowerW !== null && result.pvPowerW !== 0;
+    /*
+     * Beide Bloecke koennen gleichzeitig auftreten und dann leicht voneinander
+     * abweichen (Block 7 hinkt offenbar einen Messzyklus hinterher, und ihm
+     * fehlt haeufiger ein Feld). Deshalb feldweise zusammenfuehren, wobei 87
+     * gewinnt: Im Log vom 28.07.2026 meldete Block 7 eine Hauslast von 550 W und
+     * Block 87 gleichzeitig 560 W - die App zeigte 560 W.
+     */
+    // Der Flussblock gewinnt fuer PV, Netz und Batterie; 65.4, 4.13 und -65.20
+    // fuellen nur, was er nicht traegt - siehe die Rueckfallebenen am Ende.
     for (const blockNr of [7, 87]) {
         const gen = f.get(blockNr)?.[0];
         if (!(gen instanceof Uint8Array)) {
@@ -362,12 +389,10 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         if (g.has(1)) {
             result.housePowerW = num(g, 1);
         }
-        // Vorlaeufig; Feld 4.13 hat Vorrang, weil es feiner aufgeloest ist und
-        // in nahezu jeder Nachricht steckt.
         if (g.has(2)) {
             result.gridPowerW = num(g, 2);
         }
-        if (!pvAusSummary && g.has(3)) {
+        if (g.has(3)) {
             result.pvPowerW = num(g, 3);
         }
         if (g.has(4)) {
@@ -375,7 +400,8 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         }
     }
 
-    // Feld 4 = PCS-Block: 1=Gesamtleistung, 3.1=Phasen (delta-kodiert), 14.1=PV-Strings
+    // Feld 4 = PCS-Block: 1=Gesamtleistung, 3.1=Phasen (delta-kodiert),
+    //                     13=Netzleistung, 14.1=PV-Strings
     const pcs = f.get(4)?.[0];
     if (pcs instanceof Uint8Array) {
         const p = decodeFields(pcs);
@@ -385,17 +411,18 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         /*
          * 4.13 ist die Netzleistung (positiv = Bezug, negativ = Einspeisung).
          *
-         * Nachgewiesen am 27.07.2026: Beim Laden der Batterie aus dem Netz
-         * stand hier 1719 W, waehrend der Wechselrichter (4.1) mit -1530 W zog
-         * und das Haus rund 190 W brauchte - die Summe geht auf. Mit dem Ende
-         * der Ladung fiel der Wert binnen Sekunden auf 0.
+         * Nachgewiesen am 27.07.2026: Beim Laden der Batterie aus dem Netz stand
+         * hier 1719 W, waehrend der Wechselrichter (4.1) mit -1530 W zog und das
+         * Haus rund 190 W brauchte - die Summe geht auf. Mit dem Ende der Ladung
+         * fiel der Wert innerhalb weniger Sekunden auf 0.
          *
-         * Frueher stand hier Feld 65.7. Das ist eine Einstellung, keine
-         * Messung: An einer Anlage mit Nulleinspeisung steht es dauerhaft auf
-         * 0, an einer mit 10-kW-Begrenzung meldete es konstant 10000.
+         * Frueher stand hier Feld 65.7. Das ist eine Einstellung, keine Messung:
+         * An dieser Anlage (Nulleinspeisung) steht es dauerhaft auf 0, weshalb der
+         * Fehler lange unbemerkt blieb - an einer Anlage mit 10-kW-Begrenzung
+         * meldete es konstant 10000.
          */
         if (p.has(13)) {
-            result.gridPowerW = num(p, 13);
+            netzRueckfall = num(p, 13);
         }
         const phaseBlock = p.get(3)?.[0];
         if (phaseBlock instanceof Uint8Array) {
@@ -442,6 +469,24 @@ function decodePo2Telemetry(pdata: Uint8Array): DecodedPo2Telemetry {
         }
     }
 
+    /*
+     * Rueckfallebenen. Der Flussblock gewinnt fuer alle vier Werte: Seine
+     * Felder stammen aus einem Augenblick und bilanzieren zueinander, waehrend
+     * 65.4 und 4.13 zwar feiner aufloesen (Block 87 rundet auf 10 W), aber
+     * jeweils ihren eigenen Moment lesen. In der Aufzeichnung vom 27.07.2026
+     * liegen 4.13 und 87.2 knapp 200 W auseinander, und nur mit dem
+     * Flussblockwert geht die Bilanz des Rahmens auf.
+     */
+    if (result.pvPowerW === null && pvRueckfall !== null) {
+        result.pvPowerW = pvRueckfall;
+    }
+    if (result.gridPowerW === null && netzRueckfall !== null) {
+        result.gridPowerW = netzRueckfall;
+    }
+    if (result.batteryPowerW === null && batterieRueckfall !== null) {
+        result.batteryPowerW = batterieRueckfall;
+    }
+
     return result;
 }
 
@@ -459,17 +504,17 @@ function decodePo2BatteryPack(pdata: Uint8Array): DecodedPo2BatteryPack | null {
     }
     /*
      * Korrigiert am 31.07.2026 nach einem Hinweis von Sebastian
-     * (ecoflow-energy-ha) und an der laufenden Anlage nachgemessen:
+     * (ecoflow-energy-ha) und nachgemessen an der laufenden Anlage:
      *
      *   54  ist die Restenergie, NICHT die volle Kapazitaet. Gemessen 4114 Wh
-     *       bei 81,5 % und 4137 Wh bei 82,0 % - macht rund 5046 Wh
-     *       Vollkapazitaet. Als Kapazitaet gelesen sinkt der Wert beim
-     *       Entladen; im Betrieb ist das dauerhaft irrefuehrend.
-     *   39  ist der SoH, nicht der SoC: ueber die gesamte Messung konstant
-     *       100,0, waehrend 38 sich bewegte. Das Paar 38/39 spiegelt 2/3.
-     *    6  ist eine Zellspannung (3329 mV), keine Packspannung - sie folgt
-     *       der Last. Das Teilen durch 10 war schon ein Warnzeichen: Ein
-     *       float braucht keine Skalierung.
+     *       bei 81,5 % und 4137 Wh bei 82,0 % - macht rund 5046 Wh Vollkapazitaet.
+     *       Als Kapazitaetsanzeige gelesen sinkt der Wert beim Entladen; am
+     *       Schreibtisch faellt das nicht auf, im Betrieb ist es irrefuehrend.
+     *   39  ist der SoH, nicht der SoC: ueber die gesamte Messung konstant 100,0,
+     *       waehrend 38 sich bewegte. Das Paar 38/39 spiegelt 2/3.
+     *    6  ist eine Zellspannung (3329 mV), keine Packspannung - sie folgt der
+     *       Last. Das Teilen durch 10 war schon ein Warnzeichen: Ein float
+     *       braucht keine Skalierung.
      *
      * Nachtrag vom 31.07.2026: Die Packspannung gibt es doch - in Feld 9. Sie
      * war uebersehen worden, weil 16,5 V fuer einen Hausspeicher unplausibel
@@ -478,23 +523,21 @@ function decodePo2BatteryPack(pdata: Uint8Array): DecodedPo2BatteryPack | null {
      * Leistungsbilanz - Feld 9 mal Feld 10 trifft Feld 1 auf 1 % genau, bei
      * beiden Modulen unabhaengig.
      *
-     * Die Temperaturfelder wurden am 01.08.2026 ueber einen Lastversuch
-     * getrennt (45 min Wallbox, bis 3,6 kW je Modul). Entscheidend ist die
-     * Dynamik, nicht der Absolutwert - bei einer sich insgesamt aufheizenden
+     * Die Temperaturfelder wurden am 01.08.2026 ueber einen Lastversuch getrennt
+     * (45 min Wallbox, bis 3,6 kW je Modul). Entscheidend ist nicht der
+     * Absolutwert, sondern die Dynamik - bei einer sich insgesamt aufheizenden
      * Anlage korreliert jeder traege Sensor zufaellig mit der Last:
      *
      *   23/24/32/33  folgen der Last binnen einer Minute, 11-17 K Hub, bis
-     *                7 K/min, und fallen ebenso schnell wieder ab. Das kann
-     *                nur Leistungselektronik sein.
+     *                7 K/min, und fallen ebenso schnell wieder ab. Das kann nur
+     *                Leistungselektronik sein.
      *   31 <= 21 <= 30  gilt in beiden Modulen zu jedem Zeitpunkt beider
-     *                Messreihen. Alle drei steigen ueber 45 min monoton um
-     *                4-6 K und ignorieren Lastwechsel - Zelltemperatur
-     *                min/mittel/max.
-     *   22/25        traege wie die Zellen, liegen aber bei 42-54 C.
-     *                Vermutlich Kuehlkoerper oder Gehaeuse; nicht uebernommen.
-     *   36           steht in beiden Modulen und ueber beide Messreihen
-     *                konstant auf 33 - keine Temperatur, sondern ein fester
-     *                Wert.
+     *                Messreihen. Alle drei steigen ueber 45 min monoton um 4-6 K
+     *                und ignorieren Lastwechsel - Zelltemperatur min/mittel/max.
+     *   22/25        traege wie die Zellen, liegen aber bei 42-54 C. Vermutlich
+     *                Kuehlkoerper oder Gehaeuse; nicht uebernommen.
+     *   36           steht in beiden Modulen und ueber beide Messreihen konstant
+     *                auf 33 - keine Temperatur, sondern ein fester Wert.
      */
     return {
         packIndex,
@@ -509,18 +552,25 @@ function decodePo2BatteryPack(pdata: Uint8Array): DecodedPo2BatteryPack | null {
         cellVoltageV: num(p, 6) / 1000,
         voltageV: num(p, 9),
         currentA: num(p, 10),
-        // 1/3/17 tragen dieselbe Bedeutung wie bei der aelteren Generation -
-        // geprueft am 28.07.2026: 1122,59 W / 100 % / 4 Zyklen an einem vier
-        // Wochen alten System.
+        // 1 und 17 tragen dieselbe Bedeutung wie bei der aelteren Generation -
+        // geprueft am 28.07.2026: 1122,59 W und 4 Zyklen an einem vier Wochen
+        // alten System.
         powerW: num(p, 1),
-        sohPercent: num(p, 3),
+        /*
+         * Alterungszustand: Feld 39, nicht 3.
+         *
+         * Beide tragen auf einem gesunden Modul konstant 100, die Werte koennen
+         * sie also nicht trennen - der Wire-Typ schon: 3 kommt als Varint, 39 als
+         * Float. Geprueft an Rohframes dieser Anlage und an einem fremden
+         * Mitschnitt ueber 98 Records. Das Paar 38/39 spiegelt 2/3 der aelteren
+         * Generation, und 38 ist der Ladestand, der sich bewegt.
+         */
+        sohPercent: num(p, 39),
         cycles: num(p, 17),
     };
 }
 
-/**
- * Dekodiert eine rohe MQTT-Payload vom Topic /app/device/property/{SN}.
- */
+/** Dekodiert eine rohe MQTT-Payload vom Topic /app/device/property/{SN}. */
 export function decodeMqttPayload(raw: Uint8Array): DecodedMessage {
     const result: DecodedMessage = { batteryPacks: [], po2BatteryPacks: [] };
     const outer = decodeFields(raw);
