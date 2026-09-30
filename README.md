@@ -132,7 +132,7 @@ npx tsx test/live-check.ts <email> <password> <serial>
   seconds.** It sends a message under the id `96/33` that the older PowerOcean
   uses for its energy flow, but on the Plus it carries two serial numbers and
   two small integers. Read as an energy flow, it set house load and battery to
-  0 W, grid to 0–3 W and the state of charge to exactly 1 % about every ten
+  0 W, grid to 0–3 W and the state of charge to exactly 1 % about every four
   seconds. A real energy flow carries its powers as floats, so frames whose
   power fields hold anything else are now rejected. Units that do not send this
   message, like the `RE11`, are not affected
