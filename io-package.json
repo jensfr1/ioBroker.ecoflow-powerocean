@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "news": {
+      "0.6.1": {
+        "en": "Ocean 2 Plus (RE42): a 96/33 frame that is not an energy flow no longer sets house and battery to 0 W and the state of charge to 1 %",
+        "de": "Ocean 2 Plus (RE42): ein 96/33-Rahmen, der kein Energiefluss ist, setzt Haus und Batterie nicht mehr auf 0 W und den Ladestand auf 1 %",
+        "ru": "Ocean 2 Plus (RE42): кадр 96/33, не являющийся потоком энергии, больше не обнуляет дом и батарею и не ставит заряд 1 %",
+        "pt": "Ocean 2 Plus (RE42): um quadro 96/33 que não é fluxo de energia já não põe casa e bateria a 0 W e o estado de carga a 1 %",
+        "nl": "Ocean 2 Plus (RE42): een 96/33-frame dat geen energiestroom is, zet huis en batterij niet meer op 0 W en de laadtoestand op 1 %",
+        "fr": "Ocean 2 Plus (RE42) : une trame 96/33 qui n'est pas un flux d'énergie ne met plus maison et batterie à 0 W ni l'état de charge à 1 %",
+        "it": "Ocean 2 Plus (RE42): un frame 96/33 che non è un flusso di energia non imposta più casa e batteria a 0 W e lo stato di carica all'1 %",
+        "es": "Ocean 2 Plus (RE42): una trama 96/33 que no es un flujo de energía ya no pone casa y batería a 0 W ni el estado de carga al 1 %",
+        "pl": "Ocean 2 Plus (RE42): ramka 96/33, która nie jest przepływem energii, nie ustawia już domu i baterii na 0 W ani stanu naładowania na 1 %",
+        "uk": "Ocean 2 Plus (RE42): кадр 96/33, що не є потоком енергії, більше не обнуляє дім і батарею та не ставить заряд 1 %",
+        "zh-cn": "Ocean 2 Plus (RE42)：不是能量流的 96/33 帧不再把住宅和电池设为 0 W、把电量设为 1 %"
+      },
       "0.6.0": {
         "en": "Solar, grid and battery power now come from the balanced energy-flow block first; field 65.20 is read as signed; module state of health reads field 39",
         "de": "PV-, Netz- und Batterieleistung zuerst aus dem bilanzierten Flussblock; Feld 65.20 vorzeichenbehaftet; Alterungszustand der Module aus Feld 39",

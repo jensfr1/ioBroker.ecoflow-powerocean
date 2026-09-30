@@ -190,3 +190,26 @@ describe('Batteriemodul (cmdId 46)', () => {
         expect(pack.tempMosC).toBeGreaterThan(pack.tempMaxCellC);
     });
 });
+
+/*
+ * 96/33 vom Ocean 2 Plus (RE42), aus der Diagnose in ha-ecoflow-ocean2 #4,
+ * Seriennummern bereits maskiert. Feld 1 und 4 sind Seriennummern als Text,
+ * Feld 2 und 5 kleine Ganzzahlen - kein Energiefluss.
+ */
+const FREMDER_ENERGIEFLUSS_HEX =
+    '0a2e0a280a10585858585858585858585858585858581003221058585858585858585858585858585858280140604821';
+const ECHTER_ENERGIEFLUSS_HEX = '0a1a0a140d0000e14315000048c11d00000244250000664240604821';
+
+describe('Energiefluss (cmdFunc 96, cmdId 33)', () => {
+    it('verwirft den fremden Aufbau des Ocean 2 Plus', () => {
+        expect(decodeMqttPayload(hexToBytes(FREMDER_ENERGIEFLUSS_HEX)).energyStream).toBeUndefined();
+    });
+
+    it('liest einen echten Energiefluss weiterhin', () => {
+        const es = decodeMqttPayload(hexToBytes(ECHTER_ENERGIEFLUSS_HEX)).energyStream!;
+        expect(es.sysLoadPwr).toBe(450);
+        expect(es.sysGridPwr).toBe(-12.5);
+        expect(es.mpptPwr).toBe(520);
+        expect(es.bpPwr).toBe(57.5);
+    });
+});

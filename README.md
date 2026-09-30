@@ -126,6 +126,17 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.6.1
+
+- **An Ocean 2 Plus (`RE42`) no longer drops to 0 W and 1 % every few
+  seconds.** It sends a message under the id `96/33` that the older PowerOcean
+  uses for its energy flow, but on the Plus it carries two serial numbers and
+  two small integers. Read as an energy flow, it set house load and battery to
+  0 W, grid to 0–3 W and the state of charge to exactly 1 % about every ten
+  seconds. A real energy flow carries its powers as floats, so frames whose
+  power fields hold anything else are now rejected. Units that do not send this
+  message, like the `RE11`, are not affected
+
 ### 0.6.0
 
 - **Solar, grid and battery power now come from the energy-flow block first.**

@@ -291,7 +291,55 @@ function decodeBatteryPacks(pdata: Uint8Array): DecodedBatteryPack[] {
     return packs;
 }
 
-function decodeEnergyStream(pdata: Uint8Array): DecodedEnergyStream {
+/**
+ * Wire-Typ je Feldnummer (erstes Vorkommen). decodeFields() macht aus Float und
+ * Varint gleichermassen eine Zahl - wo der Typ zaehlt, steht er nur hier.
+ */
+function wireTypes(data: Uint8Array): Map<number, number> {
+    const types = new Map<number, number>();
+    let pos = 0;
+    while (pos < data.length) {
+        let tag: number;
+        [tag, pos] = readVarint(data, pos);
+        const fieldNum = tag >>> 3;
+        const wireType = tag & 0x07;
+        if (!types.has(fieldNum)) {
+            types.set(fieldNum, wireType);
+        }
+        if (wireType === 0) {
+            [, pos] = readVarint(data, pos);
+        } else if (wireType === 1) {
+            pos += 8;
+        } else if (wireType === 2) {
+            let length: number;
+            [length, pos] = readVarint(data, pos);
+            pos += length;
+        } else if (wireType === 5) {
+            pos += 4;
+        } else {
+            break;
+        }
+    }
+    return types;
+}
+
+/**
+ * Energiefluss der aelteren Generation (96/33) - oder undefined, wenn der Rahmen
+ * keiner ist.
+ *
+ * Das Ocean 2 Plus (RE42) sendet unter derselben Kennung etwas ganz anderes:
+ * zwei Seriennummern als Text in Feld 1 und 4, kleine Ganzzahlen in Feld 2 und
+ * 5. Als Energiefluss gelesen setzte das alle zehn Sekunden Hauslast und
+ * Batterie auf 0 W, das Netz auf 0 bis 3 W und den Ladestand auf genau 1 %
+ * (ha-ecoflow-ocean2 #4). Ein echter Energiefluss traegt seine Leistungen als
+ * Float (Wire-Typ 5); alles andere wird verworfen.
+ */
+function decodeEnergyStream(pdata: Uint8Array): DecodedEnergyStream | undefined {
+    const types = wireTypes(pdata);
+    const powers = [1, 2, 3, 4].filter(n => types.has(n));
+    if (powers.length === 0 || !powers.every(n => types.get(n) === 5)) {
+        return undefined;
+    }
     const f = decodeFields(pdata);
     return {
         sysLoadPwr: num(f, 1),

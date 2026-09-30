@@ -131,6 +131,17 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.6.1
+
+- **Ein Ocean 2 Plus (`RE42`) fällt nicht mehr alle paar Sekunden auf 0 W und
+  1 %.** Es sendet unter der Kennung `96/33` eine Nachricht, die beim älteren
+  PowerOcean den Energiefluss enthält, beim Plus aber zwei Seriennummern und zwei
+  kleine Ganzzahlen. Als Energiefluss gelesen setzte das etwa alle zehn Sekunden
+  Hauslast und Batterie auf 0 W, das Netz auf 0–3 W und den Ladestand auf genau
+  1 %. Ein echter Energiefluss trägt seine Leistungen als Kommazahl; Rahmen, bei
+  denen dort etwas anderes steht, werden jetzt verworfen. Geräte, die diese
+  Nachricht nicht senden, wie der `RE11`, sind nicht betroffen
+
 ### 0.6.0
 
 - **PV-, Netz- und Batterieleistung kommen jetzt zuerst aus dem
