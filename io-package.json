@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "news": {
+      "0.6.2": {
+        "en": "A state of charge of 0 % (empty battery) now shows as 0 % instead of keeping the last value",
+        "de": "Ein Ladestand von 0 % (leerer Akku) wird jetzt als 0 % angezeigt statt den letzten Wert zu behalten",
+        "ru": "Уровень заряда 0 % (пустая батарея) теперь отображается как 0 %, а не последнее значение",
+        "pt": "Um estado de carga de 0 % (bateria vazia) agora aparece como 0 % em vez de manter o último valor",
+        "nl": "Een laadtoestand van 0 % (lege batterij) wordt nu als 0 % getoond in plaats van de laatste waarde",
+        "fr": "Un état de charge de 0 % (batterie vide) s'affiche désormais à 0 % au lieu de garder la dernière valeur",
+        "it": "Uno stato di carica dello 0 % (batteria scarica) ora viene mostrato come 0 % invece dell'ultimo valore",
+        "es": "Un estado de carga del 0 % (batería vacía) ahora se muestra como 0 % en lugar de mantener el último valor",
+        "pl": "Stan naładowania 0 % (pusta bateria) jest teraz pokazywany jako 0 % zamiast ostatniej wartości",
+        "uk": "Рівень заряду 0 % (порожня батарея) тепер показується як 0 %, а не останнє значення",
+        "zh-cn": "电量 0 %（电池耗尽）现在显示为 0 %，不再保留上一个值"
+      },
       "0.6.1": {
         "en": "Ocean 2 Plus (RE42): a 96/33 frame that is not an energy flow no longer sets house and battery to 0 W and the state of charge to 1 %",
         "de": "Ocean 2 Plus (RE42): ein 96/33-Rahmen, der kein Energiefluss ist, setzt Haus und Batterie nicht mehr auf 0 W und den Ladestand auf 1 %",

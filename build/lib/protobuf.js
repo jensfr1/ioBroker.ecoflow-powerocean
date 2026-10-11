@@ -269,8 +269,12 @@ function decodePo2Telemetry(pdata) {
             pvRueckfall = num(s, 4);
         }
         // 65.7 war frueher als Netzleistung eingeordnet - falsch, siehe Feld 4.13.
-        result.socPercent = num(s, 17);
-        result.remainingWh = num(s, 15);
+        if (s.has(17)) {
+            result.socPercent = num(s, 17);
+        }
+        if (s.has(15)) {
+            result.remainingWh = num(s, 15);
+        }
         /*
          * 65.20 = Batterieleistung, signiert - negativ waehrend der Akku laedt.
          *

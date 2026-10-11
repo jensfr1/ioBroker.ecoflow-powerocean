@@ -126,6 +126,14 @@ npx tsx test/live-check.ts <email> <password> <serial>
 
 ## Changelog
 
+### 0.6.2
+
+- **A state of charge of 0 % now shows as 0 %.** An empty battery reports its
+  state of charge as 0 explicitly; the adapter dropped it, because a check meant
+  to skip placeholder zeros treated any 0 as no value. No recording shows such a
+  placeholder: the summary block arrives complete in every recorded frame from
+  three installations. Remaining energy of 0 Wh had the same problem
+
 ### 0.6.1
 
 - **An Ocean 2 Plus (`RE42`) no longer drops to 0 W and 1 % every few

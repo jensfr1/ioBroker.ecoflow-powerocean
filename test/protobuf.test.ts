@@ -213,3 +213,18 @@ describe('Energiefluss (cmdFunc 96, cmdId 33)', () => {
         expect(es.bpPwr).toBe(57.5);
     });
 });
+
+/*
+ * 254/39 von einem RE17 bei leerem Akku (ha-ecoflow-ocean2 #5): Block 65 traegt
+ * den Ladestand ausdruecklich als 0, daneben 66 Wh Restenergie.
+ */
+const LEERER_AKKU_HEX =
+    '0a8a010a82018a0442080010001800250000f0412d00f0284535000000803d000004434001480155000000005d000000006000680070007842800100880100900142980101a50100f0334592013a0a1a0d00e042451500904245180120042d0000f841350000e84138020a1a0d004043451500104345180120042d0000e041350000d0413801100140fe014827';
+
+describe('Leerer Akku (Feld 65.17 = 0)', () => {
+    it('liest 0 % als Wert, nicht als fehlend', () => {
+        const t = decodeMqttPayload(hexToBytes(LEERER_AKKU_HEX)).po2Telemetry!;
+        expect(t.socPercent).toBe(0);
+        expect(t.remainingWh).toBe(66);
+    });
+});

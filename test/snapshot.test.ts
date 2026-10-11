@@ -136,10 +136,16 @@ describe('mergeSnapshot — Werte aus mehreren Nachrichtentypen', () => {
         expect(withPcs.inverterPowerW).toBe(1069);
     });
 
-    it('ignoriert SoC 0 (kommt in Teilnachrichten als Platzhalter)', () => {
-        const first = mergeSnapshot(SN, null, message({ po2Telemetry: telemetry({ socPercent: 87 }) }));
+    it('uebernimmt einen Ladestand von 0 % (leerer Akku, ha-ecoflow-ocean2 #5)', () => {
+        const first = mergeSnapshot(SN, null, message({ po2Telemetry: telemetry({ socPercent: 5 }) }));
         const second = mergeSnapshot(SN, first, message({ po2Telemetry: telemetry({ socPercent: 0 }) }));
-        expect(second.batterySoc).toBe(87);
+        expect(second.batterySoc).toBe(0);
+    });
+
+    it('laesst den Ladestand stehen, wenn eine Nachricht keinen traegt', () => {
+        const first = mergeSnapshot(SN, null, message({ po2Telemetry: telemetry({ socPercent: 42 }) }));
+        const second = mergeSnapshot(SN, first, message({ po2Telemetry: telemetry({ pvPowerW: 100 }) }));
+        expect(second.batterySoc).toBe(42);
     });
 });
 

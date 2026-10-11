@@ -131,6 +131,15 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 
 ## Changelog
 
+### 0.6.2
+
+- **Ein Ladestand von 0 % wird jetzt als 0 % angezeigt.** Ein leerer Akku meldet
+  seinen Ladestand ausdrücklich als 0; der Adapter verwarf ihn, weil eine Prüfung
+  gegen vermeintliche Platzhalter jede 0 als „kein Wert" behandelte. Keine
+  Aufzeichnung zeigt einen solchen Platzhalter: Der Zusammenfassungsblock kommt
+  in jedem aufgezeichneten Rahmen von drei Anlagen vollständig. Eine Restenergie
+  von 0 Wh hatte dasselbe Problem
+
 ### 0.6.1
 
 - **Ein Ocean 2 Plus (`RE42`) fällt nicht mehr alle paar Sekunden auf 0 W und

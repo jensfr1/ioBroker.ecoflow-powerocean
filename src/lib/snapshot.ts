@@ -256,10 +256,13 @@ export function mergeSnapshot(sn: string, previous: Snapshot | null, msg: Decode
         if (t.batteryPowerW !== null) {
             s.batteryPowerW = t.batteryPowerW;
         }
-        if (t.socPercent !== null && t.socPercent > 0) {
+        // Ein leerer Akku meldet 0 % - ein echter Wert, kein Platzhalter. Block 65
+        // kommt in jeder Aufzeichnung vollstaendig und traegt die 0 ausdruecklich
+        // (ha-ecoflow-ocean2 #5).
+        if (t.socPercent !== null) {
             s.batterySoc = t.socPercent;
         }
-        if (t.remainingWh !== null && t.remainingWh > 0) {
+        if (t.remainingWh !== null) {
             s.batteryRemainingWh = t.remainingWh;
         }
         if (t.pcsTotalW !== null) {
