@@ -5,7 +5,7 @@
 **English** · [Deutsch](README.de.md)
 
 Reads live data from the **EcoFlow Ocean 2** (serial numbers starting with
-`RE11`) and other PowerOcean systems, and writes PV, battery, grid and phase
+`RE11`, `RE17`, `RE41`, `RE42` or `RE43`) and other PowerOcean systems, and writes PV, battery, grid and phase
 values into the ioBroker object tree.
 
 The adapter appears in ioBroker as **EcoFlow Ocean 2**.
@@ -30,6 +30,11 @@ undocumented **`cmdFunc 254`** message class (`cmdId 39` = telemetry,
 reverse-engineered from recorded traffic and verified against the EcoFlow web
 portal (values matched within ~1 %). Older systems using `cmdFunc 96` are
 handled as well.
+
+The `RE17`, `RE41`, `RE42` and `RE43` speak the same frames as the `RE11`,
+each confirmed on at least one installation. The `RE42` and `RE43` report the
+inverter output and phase active power with the opposite sign; the adapter
+corrects that by serial prefix.
 
 > **Note:** This uses EcoFlow's inofficial app API. It may break at any time if
 > EcoFlow changes it.
@@ -125,6 +130,16 @@ npx tsx test/live-check.ts <email> <password> <serial>
 ```
 
 ## Changelog
+
+### 0.6.3
+
+- **`RE42` and `RE43`: inverter output and phase active power read with the
+  right sign.** These two report both with the opposite sign of the `RE11` and
+  `RE41`: an `RE42` read −4,267 W while supplying 4,570 W to the house. They
+  are now corrected by serial prefix, as in shuette42/ecoflow-energy-ha 1.25.0,
+  which measured it on one unit of each. Battery, grid, solar and house load
+  were never affected
+- The README names all confirmed serial prefixes
 
 ### 0.6.2
 

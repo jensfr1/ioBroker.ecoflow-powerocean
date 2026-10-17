@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ecoflow-powerocean",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "news": {
+      "0.6.3": {
+        "en": "RE42 and RE43: inverter output and phase active power now read with the right sign",
+        "de": "RE42 und RE43: Wechselrichter-Ausgang und Phasen-Wirkleistung jetzt mit richtigem Vorzeichen",
+        "ru": "RE42 и RE43: выход инвертора и активная мощность фаз теперь с правильным знаком",
+        "pt": "RE42 e RE43: saída do inversor e potência ativa por fase agora com o sinal correto",
+        "nl": "RE42 en RE43: omvormeruitgang en werkelijk vermogen per fase nu met het juiste teken",
+        "fr": "RE42 et RE43 : sortie de l'onduleur et puissance active par phase avec le bon signe",
+        "it": "RE42 e RE43: uscita dell'inverter e potenza attiva per fase ora con il segno corretto",
+        "es": "RE42 y RE43: salida del inversor y potencia activa por fase ahora con el signo correcto",
+        "pl": "RE42 i RE43: moc wyjściowa falownika i moc czynna faz teraz z właściwym znakiem",
+        "uk": "RE42 і RE43: вихід інвертора та активна потужність фаз тепер із правильним знаком",
+        "zh-cn": "RE42 和 RE43：逆变器输出和各相有功功率的正负号现已正确"
+      },
       "0.6.2": {
         "en": "A state of charge of 0 % (empty battery) now shows as 0 % instead of keeping the last value",
         "de": "Ein Ladestand von 0 % (leerer Akku) wird jetzt als 0 % angezeigt statt den letzten Wert zu behalten",

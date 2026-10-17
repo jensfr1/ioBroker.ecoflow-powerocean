@@ -280,3 +280,28 @@ describe('Netzleistung (Feld 4.13)', () => {
         expect(s.housePowerW).toBe(150);
     });
 });
+
+describe('AC-Vorzeichen RE42/RE43', () => {
+    it('dreht Wechselrichter- und Phasen-Wirkleistung beim RE42', () => {
+        const s = mergeSnapshot(
+            'RE42TEST00000001',
+            null,
+            message({
+                po2Telemetry: telemetry({ pcsTotalW: -4267, phases: new Map([[1, { actPwr: -4267, vol: 239 }]]) }),
+            }),
+        );
+        expect(s.inverterPowerW).toBe(4267);
+        expect(s.phases.a.activePower).toBe(4267);
+        expect(s.phases.a.voltage).toBe(239);
+    });
+
+    it('laesst den RE11 unveraendert', () => {
+        const s = mergeSnapshot(SN, null, message({ po2Telemetry: telemetry({ pcsTotalW: 375 }) }));
+        expect(s.inverterPowerW).toBe(375);
+    });
+
+    it('ein ruhender Wechselrichter bleibt bei 0, nicht -0', () => {
+        const s = mergeSnapshot('RE43TEST00000001', null, message({ po2Telemetry: telemetry({ pcsTotalW: 0 }) }));
+        expect(Object.is(s.inverterPowerW, 0)).toBe(true);
+    });
+});

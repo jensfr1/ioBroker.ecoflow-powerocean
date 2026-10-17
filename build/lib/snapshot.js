@@ -96,6 +96,13 @@ function computeHouseLoad(s) {
  * Fuehrt eine dekodierte Nachricht in den Vorzustand ein und gibt den neuen
  * Gesamtzustand zurueck. `previous` wird dabei nicht veraendert.
  */
+/**
+ * Seriennummern-Praefixe, die Wechselrichterleistung (4.1) und Phasen-Wirkleistung
+ * mit umgekehrtem Vorzeichen melden. Beim RE42 stand -4267 W, waehrend das Geraet
+ * 4570 W ins Haus lieferte; ein RE41 meldete +375 W bei 455 W Hauslast, wie der
+ * RE11. Gemessen von shuette42/ecoflow-energy-ha an je einer Anlage.
+ */
+const AC_SIGN_INVERTED = new Set(['RE42', 'RE43']);
 function mergeSnapshot(sn, previous, msg, now = Date.now()) {
     const base = previous ?? emptySnapshot(sn);
     const s = {
@@ -178,8 +185,10 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
         if (t.remainingWh !== null) {
             s.batteryRemainingWh = t.remainingWh;
         }
+        const acInverted = AC_SIGN_INVERTED.has(sn.slice(0, 4).toUpperCase());
         if (t.pcsTotalW !== null) {
-            s.inverterPowerW = t.pcsTotalW;
+            // 0 - x statt -x: ein ruhender Wechselrichter bliebe sonst -0
+            s.inverterPowerW = acInverted ? 0 - t.pcsTotalW : t.pcsTotalW;
         }
         // Gemessen schlaegt gerechnet - siehe computeHouseLoad()
         if (t.housePowerW !== null) {
@@ -193,7 +202,8 @@ function mergeSnapshot(sn, previous, msg, now = Date.now()) {
             if (!key) {
                 continue;
             }
-            s.phases[key] = mergePhase(s.phases[key], partial);
+            const p = acInverted && partial.actPwr !== undefined ? { ...partial, actPwr: 0 - partial.actPwr } : partial;
+            s.phases[key] = mergePhase(s.phases[key], p);
         }
         for (const [index, power] of t.pvStrings) {
             s.pvStrings.set(index, power);

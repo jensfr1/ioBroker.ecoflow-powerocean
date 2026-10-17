@@ -4,8 +4,8 @@
 
 [English](README.md) · **Deutsch**
 
-Liest Livedaten vom **EcoFlow Ocean 2** (Seriennummern beginnend mit `RE11`)
-und anderen PowerOcean-Anlagen und schreibt PV, Batterie, Netz und Phasenwerte
+Liest Livedaten vom **EcoFlow Ocean 2** (Seriennummern beginnend mit `RE11`,
+`RE17`, `RE41`, `RE42` oder `RE43`) und anderen PowerOcean-Anlagen und schreibt PV, Batterie, Netz und Phasenwerte
 in den ioBroker-Objektbaum.
 
 Im ioBroker erscheint der Adapter als **EcoFlow Ocean 2**.
@@ -31,6 +31,11 @@ undokumentierte Nachrichtenklasse **`cmdFunc 254`** (`cmdId 39` = Telemetrie,
 `cmdId 46` = Batteriemodul). Der Decoder in `src/lib/protobuf.ts` wurde aus
 mitgeschnittenem Verkehr rekonstruiert und gegen das EcoFlow-Webportal verifiziert
 (Abweichung ~1 %). Ältere Anlagen mit `cmdFunc 96` werden ebenfalls unterstützt.
+
+`RE17`, `RE41`, `RE42` und `RE43` sprechen dieselben Rahmen wie der `RE11`, jeweils
+an mindestens einer Anlage bestätigt. `RE42` und `RE43` melden Wechselrichter-
+Ausgang und Phasen-Wirkleistung mit umgekehrtem Vorzeichen; der Adapter
+korrigiert das anhand des Seriennummern-Präfixes.
 
 > **Hinweis:** Das nutzt die inoffizielle App-API von EcoFlow. Sie kann sich
 > jederzeit ändern.
@@ -130,6 +135,16 @@ npx tsx test/live-check.ts <email> <passwort> <seriennummer>
 ```
 
 ## Changelog
+
+### 0.6.3
+
+- **`RE42` und `RE43`: Wechselrichter-Ausgang und Phasen-Wirkleistung mit
+  richtigem Vorzeichen.** Beide melden diese Werte umgekehrt zum `RE11` und
+  `RE41`: Ein `RE42` zeigte −4.267 W, während es 4.570 W ins Haus lieferte. Sie
+  werden jetzt anhand des Seriennummern-Präfixes korrigiert, wie in
+  shuette42/ecoflow-energy-ha 1.25.0, das es an je einer Anlage gemessen hat.
+  Batterie, Netz, PV und Hauslast waren nie betroffen
+- Die README nennt alle bestätigten Seriennummern-Präfixe
 
 ### 0.6.2
 
