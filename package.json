@@ -28,7 +28,7 @@
     "mqtt": "^5.15.2"
   },
   "devDependencies": {
-    "@iobroker/testing": "^5.2.2",
+    "@iobroker/testing": "^6.2.2",
     "@types/node": "^20.19.0",
     "typescript": "^5.7.2",
     "vitest": "^4.1.10",
